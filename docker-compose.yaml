@@ -1,0 +1,32 @@
+services:
+  web:
+    image: webdevops/php-apache-dev:8.4
+    user: application
+    ports:
+      - 80:80
+    environment:
+      VIRUTAL_HOST: gemco.test
+      WEB_DOCUMENT_ROOT: /app/public
+      XDEBUG_MODE: debug,develop
+    networks:
+      - default
+    volumes:
+      - ./:/app:rw,delegated
+    working_dir: /app
+
+  database:
+    image: mysql:8.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=gemco
+    networks:
+      - default
+    ports:
+      - 3306:3306
+
+  npm:
+    image: node:20
+    volumes:
+      - ./:/app
+    working_dir: /app
+    entrypoint: ['npm']
