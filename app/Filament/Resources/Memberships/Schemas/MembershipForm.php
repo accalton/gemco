@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Memberships\Schemas;
 use App\Models\Membership;
 use App\Models\MembershipUser;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
@@ -14,6 +15,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\IconPosition;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 
 class MembershipForm
@@ -28,6 +31,19 @@ class MembershipForm
                             Repeater::make('membershipUsers')
                                 ->addActionLabel('Add member / contact')
                                 ->collapsed()
+                                ->extraItemActions([
+                                    Action::make('view')
+                                        ->button()
+                                        ->color('warning')
+                                        ->hidden(fn (array $arguments, array $schemaComponentState) => !($schemaComponentState[$arguments['item']]['user_id'] ?? false))
+                                        ->iconPosition(IconPosition::After)
+                                        ->icon(Heroicon::ArrowRightEndOnRectangle)
+                                        ->url(function (array $arguments, array $schemaComponentState) {
+                                            $userId = $schemaComponentState[$arguments['item']]['user_id'] ?? null;
+
+                                            return $userId ? route('filament.admin.resources.users.edit', $userId) : null;
+                                        })
+                                ])
                                 ->itemLabel(function (Schema $item) {
                                     if ($item->model->type ?? false) {
                                         $type = MembershipUser::TYPES[$item->model->type];

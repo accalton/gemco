@@ -19,10 +19,8 @@ class MembershipFactory extends Factory
     public function definition(): array
     {
         $date = new DateTime();
-        $types = array_keys(Membership::TYPES);
-        $type = $types[rand(0, count($types) - 1)];
-        $statuses = array_keys(Membership::STATUSES);
-        $status = $statuses[rand(0, count($statuses) - 1)];
+        $type = array_rand(Membership::TYPES);
+        $status = array_rand(Membership::STATUSES);
 
         if (in_array($status, [Membership::STATUS_CANCELLED, Membership::STATUS_EXPIRED])) {
             $date->modify('-' . rand(1, 52) . ' weeks');

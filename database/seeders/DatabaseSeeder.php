@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Identification;
 use App\Models\Membership;
 use App\Models\MembershipUser;
 use App\Models\User;
@@ -34,16 +35,17 @@ class DatabaseSeeder extends Seeder
         $memberships = Membership::factory(100)->create();
 
         foreach ($memberships as $membership) {
-            $factory = User::factory()
+            $userFactory = User::factory()
                 ->hasAttached($membership, [
                     'type' => MembershipUser::TYPE_MEMBER
-                ]);
+                ])
+                ->has(Identification::factory());
 
             if ($membership->type === Membership::TYPE_FAMILY) {
-                $factory = $factory->count(rand(2, 5));
+                $userFactory = $userFactory->count(rand(2, 5));
             }
 
-            $factory->create();
+            $userFactory->create();
         }
     }
 }

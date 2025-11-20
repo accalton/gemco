@@ -23,6 +23,8 @@ services:
       - default
     ports:
       - 3306:3306
+    volumes:
+      - databases:/var/lib/mysql
 
   npm:
     image: node:20
@@ -30,3 +32,6 @@ services:
       - ./:/app
     working_dir: /app
     entrypoint: ['npm']
+
+volumes:
+  databases:

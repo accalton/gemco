@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\MembershipUser;
-use App\Models\User;
+use App\Models\Identification;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,13 +8,8 @@ Route::get('/', function () {
 });
 
 Route::get('/foobar', function () {
-    $membershipUser = MembershipUser::first();
-
-    $users = User::query()->whereRelation('membershipUsers', 'id', $membershipUser->id)->orWhereDoesntHave('membershipUsers')->get();
-
-    foreach ($users as $user) {
-        var_dump($user->name);
+    for ($i = 0; $i < 10; $i++) {
+        $val = array_rand(Identification::TYPES);
+        var_dump($val);
     }
-
-    exit;
 });
