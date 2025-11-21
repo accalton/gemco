@@ -26,6 +26,9 @@ class UserForm
                         ->schema([
                             TextInput::make('name')
                                 ->required(),
+                            TextInput::make('password')
+                                ->password()
+                                ->required(),
                             DatePicker::make('date_of_birth')
                                 ->required(),
                             TextInput::make('email')
@@ -34,6 +37,7 @@ class UserForm
                                 ->required(),
                             Repeater::make('identifications')
                                 ->collapsed()
+                                ->defaultItems(0)
                                 ->itemLabel(fn (array $state): ?string => Identification::TYPES[$state['type']] ?? null)
                                 ->relationship()
                                 ->schema([
@@ -58,6 +62,7 @@ class UserForm
                                 ->disabled()
                                 ->readOnly(),
                             Repeater::make('memberships')
+                                ->defaultItems(0)
                                 ->addable(false)
                                 ->deletable(false)
                                 ->extraItemActions([
@@ -69,7 +74,9 @@ class UserForm
                                         ->url(function (array $arguments, array $state) {
                                             $itemData = $state[$arguments['item']];
 
-                                            return route('filament.admin.resources.memberships.edit', $itemData['membership_id']);
+                                            if ($membershipId = $itemData['membership_id'] ?? false) {
+                                                return route('filament.admin.resources.memberships.edit', $membershipId);
+                                            }
                                         })
                                 ])
                                 ->label('Membership Type')
@@ -77,7 +84,7 @@ class UserForm
                                 ->simple(
                                     TextInput::make('type')
                                         ->disabled()
-                                        ->formatStateUsing(fn (string $state): string => Membership::TYPES[$state])
+                                        ->formatStateUsing(fn (?string $state): ?string => Membership::TYPES[$state] ?? null)
                                         ->readOnly(),
                                 ),
                         ])->grow(false)
