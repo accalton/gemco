@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Membership extends Model
 {
@@ -19,10 +20,10 @@ class Membership extends Model
     public const string STATUS_REVOKED = 'revoked';
 
     public const array STATUSES = [
-        self::STATUS_ACTIVE => 'Active',
+        self::STATUS_ACTIVE    => 'Active',
         self::STATUS_CANCELLED => 'Cancelled',
-        self::STATUS_PENDING => 'Pending',
-        self::STATUS_REVOKED => 'Revoked',
+        self::STATUS_PENDING   => 'Pending',
+        self::STATUS_REVOKED   => 'Revoked',
     ];
 
     public const string TYPE_ADULT = 'adult';
@@ -31,10 +32,10 @@ class Membership extends Model
     public const string TYPE_YOUTH = 'youth';
 
     public const array TYPES = [
-        self::TYPE_ADULT => 'Adult',
+        self::TYPE_ADULT       => 'Adult',
         self::TYPE_CONSCESSION => 'Conscession',
-        self::TYPE_FAMILY => 'Family',
-        self::TYPE_YOUTH => 'Youth',
+        self::TYPE_FAMILY      => 'Family',
+        self::TYPE_YOUTH       => 'Youth',
     ];
 
     protected $fillable = [
@@ -44,18 +45,26 @@ class Membership extends Model
     ];
 
     /**
-     * @return HasMany
+     * @return MorphToMany
      */
-    public function membershipUsers(): HasMany
+    public function members(): MorphToMany
     {
-        return $this->hasMany(MembershipUser::class);
+        return $this->morphedByMany(Member::class, 'membershipable')->withPivot('order', 'type');
     }
 
     /**
-     * @return BelongsToMany
+     * @return
      */
-    public function users(): BelongsToMany
+    public function membershipable(): HasMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->hasMany(Membershipable::class);
+    }
+
+    /**
+     * @return MorphToMany
+     */
+    public function users(): MorphToMany
+    {
+        return $this->morphedByMany(User::class, 'membershipable')->withPivot('order', 'type');
     }
 }

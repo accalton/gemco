@@ -26,12 +26,9 @@ class UserForm
                         ->schema([
                             TextInput::make('name')
                                 ->required(),
-                            TextInput::make('password')
-                                ->password()
+                            TextInput::make('email')
                                 ->required(),
                             DatePicker::make('date_of_birth')
-                                ->required(),
-                            TextInput::make('email')
                                 ->required(),
                             TextInput::make('phone')
                                 ->required(),
@@ -61,32 +58,6 @@ class UserForm
                             DatePicker::make('updated_at')
                                 ->disabled()
                                 ->readOnly(),
-                            Repeater::make('memberships')
-                                ->defaultItems(0)
-                                ->addable(false)
-                                ->deletable(false)
-                                ->extraItemActions([
-                                    Action::make('view')
-                                        ->button()
-                                        ->color('warning')
-                                        ->icon(Heroicon::ArrowRightEndOnRectangle)
-                                        ->iconPosition(IconPosition::After)
-                                        ->url(function (array $arguments, array $state) {
-                                            $itemData = $state[$arguments['item']];
-
-                                            if ($membershipId = $itemData['membership_id'] ?? false) {
-                                                return route('filament.admin.resources.memberships.edit', $membershipId);
-                                            }
-                                        })
-                                ])
-                                ->label('Membership Type')
-                                ->relationship()
-                                ->simple(
-                                    TextInput::make('type')
-                                        ->disabled()
-                                        ->formatStateUsing(fn (?string $state): ?string => Membership::TYPES[$state] ?? null)
-                                        ->readOnly(),
-                                ),
                         ])->grow(false)
                 ])->from('md')->columnSpanFull()
             ]);

@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,19 +48,19 @@ class User extends Authenticatable
     }
 
     /**
-     * @return BelongsToMany
+     * @return MorphToMany
      */
-    public function memberships(): BelongsToMany
+    public function memberships(): MorphToMany
     {
-        return $this->belongsToMany(Membership::class);
+        return $this->morphToMany(Membership::class, 'membershipable')->withPivot('order', 'type');
     }
 
     /**
      * @return HasMany
      */
-    public function membershipUsers(): HasMany
+    public function membershipables(): HasMany
     {
-        return $this->hasMany(MembershipUser::class);
+        return $this->hasMany(Membershipable::class, 'membershipable_id')->where('membershipable_type', static::class);
     }
 
     /**

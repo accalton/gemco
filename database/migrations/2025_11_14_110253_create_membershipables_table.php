@@ -11,16 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('membership_user', function (Blueprint $table) {
+        Schema::create('membershipables', function (Blueprint $table) {
             $table->id();
             $table->foreignId('membership_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->foreignId('user_id')
+            $table->foreignId('membershipable_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
+            $table->string('membershipable_type');
             $table->string('type');
             $table->integer('order')->unsigned()->default(1);
             $table->timestamps();

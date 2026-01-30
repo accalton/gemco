@@ -1,15 +1,16 @@
 <?php
 
-use App\Models\Identification;
+use App\Models\Membershipable;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/foobar', function () {
-    for ($i = 0; $i < 10; $i++) {
-        $val = array_rand(Identification::TYPES);
-        var_dump($val);
+Route::get('/test', function () {
+    $foo = Membershipable::all();
+
+    foreach ($foo as $bar) {
+        var_dump($bar->order);
     }
 });

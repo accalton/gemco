@@ -2,22 +2,22 @@
 
 namespace App\Filament\Resources\Memberships\Schemas;
 
+use App\Models\Member;
 use App\Models\Membership;
-use App\Models\MembershipUser;
+use App\Models\Membershipable;
 use App\Models\User;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\IconPosition;
-use Filament\Support\Icons\Heroicon;
-use Illuminate\Database\Eloquent\Builder;
 
 class MembershipForm
 {
@@ -28,52 +28,64 @@ class MembershipForm
                 Flex::make([
                     Section::make()
                         ->schema([
-                            Repeater::make('membershipUsers')
-                                ->addActionLabel('Add member / contact')
+                            Repeater::make('members')
+                                ->columnSpan(4)
                                 ->collapsed()
-                                ->extraItemActions([
-                                    Action::make('view')
-                                        ->button()
-                                        ->color('warning')
-                                        ->hidden(fn (array $arguments, array $schemaComponentState) => !($schemaComponentState[$arguments['item']]['user_id'] ?? false))
-                                        ->iconPosition(IconPosition::After)
-                                        ->icon(Heroicon::ArrowRightEndOnRectangle)
-                                        ->url(function (array $arguments, array $schemaComponentState) {
-                                            $userId = $schemaComponentState[$arguments['item']]['user_id'] ?? null;
+                                ->itemLabel(function (array $state) {
+                                    $label = [];
+                                    $array = explode(':', $state['membershipable_id']);
 
-                                            return $userId ? route('filament.admin.resources.users.edit', $userId) : null;
-                                        })
-                                ])
-                                ->itemLabel(function (Schema $item) {
-                                    if ($item->model->type ?? false) {
-                                        $type = MembershipUser::TYPES[$item->model->type];
-                                        $name = $item->model->user->name ?? null;
-                                        return $type . ': ' . $name;
+                                    if (isset($array[1])) {
+                                        $member = $array[0]::find($array[1]);
+                                        $label[] = $member->name;
                                     }
 
-                                    return null;
+                                    return implode(' - ', $label);
                                 })
-                                ->label('Members & Contacts')
-                                ->relationship()
+                                ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
+                                    $data['membershipable_id'] = $data['membershipable_type'] . ':' . $data['membershipable_id'];
+
+                                    return $data;
+                                })
+                                ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                    return self::mutateMembershipableData($data);
+                                })
+                                ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                                    return self::mutateMembershipableData($data);
+                                })
+                                ->relationship(name: 'membershipable')
+                                ->orderColumn('order')
                                 ->schema([
                                     Flex::make([
-                                        Select::make('user_id')
-                                            ->relationship(
-                                                name: 'user',
-                                                titleAttribute: 'name',
-                                                modifyQueryUsing: fn (Builder $query, ?MembershipUser $record) => $query
-                                                    ->whereRelation('membershipUsers', 'id', $record->id ?? null)
-                                                    ->orDoesntHave('membershipUsers'),
-                                            )
-                                            ->required(),
+                                        Select::make('membershipable_id')
+                                            ->columnSpan(3)
+                                            ->label('Member')
+                                            ->live()
+                                            ->options(function ($record) {
+                                                $options = [];
+                                                foreach ([Member::class, User::class] as $class) {
+                                                    $members = $class::query()
+                                                        ->whereRelation('membershipables', 'id', $record->id ?? null)
+                                                        ->orDoesntHave('membershipables')
+                                                        ->get()
+                                                        ->pluck('name', 'id');
+                                                    foreach ($members as $key => $name) {
+                                                        $key = $class . ':' . $key;
+                                                        $options[$key] = $name;
+                                                    }
+                                                }
+
+                                                asort($options);
+    
+                                                return $options;
+                                            }),
                                         Radio::make('type')
-                                            ->inline()
-                                            ->options(MembershipUser::TYPES)
-                                            ->required()
                                             ->grow(false)
+                                            ->inline()
+                                            ->options(Membershipable::TYPES)
+                                            ->required(),
                                     ])
                                 ])
-                                ->orderColumn('order')
                         ])->columnSpanFull(),
                     Section::make()
                         ->schema([
@@ -91,5 +103,19 @@ class MembershipForm
                         ])->grow(false)
                 ])->from('md')->columnSpanFull()
             ]);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    private static function mutateMembershipableData(array $data): array
+    {
+        $array = explode(':', $data['membershipable_id']);
+        $data['membershipable_id'] = $array[1];
+        $data['membershipable_type'] = $array[0];
+
+        return $data;
     }
 }
