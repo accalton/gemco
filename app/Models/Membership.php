@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Membership extends Model
 {
@@ -45,26 +43,18 @@ class Membership extends Model
     ];
 
     /**
-     * @return MorphToMany
+     * @return BelongsToMany
      */
-    public function members(): MorphToMany
+    public function members(): BelongsToMany
     {
-        return $this->morphedByMany(Member::class, 'membershipable')->withPivot('order', 'type');
+        return $this->belongsToMany(Member::class);
     }
 
     /**
-     * @return
+     * @return HasMany
      */
-    public function membershipable(): HasMany
+    public function member_memberships(): HasMany
     {
-        return $this->hasMany(Membershipable::class);
-    }
-
-    /**
-     * @return MorphToMany
-     */
-    public function users(): MorphToMany
-    {
-        return $this->morphedByMany(User::class, 'membershipable')->withPivot('order', 'type');
+        return $this->hasMany(MemberMembership::class);
     }
 }

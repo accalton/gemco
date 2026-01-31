@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Member;
+use App\Models\MemberMembership;
 use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -31,12 +32,14 @@ class DatabaseSeeder extends Seeder
      */
     private function seedMemberships(): void
     {
-        Membership::factory(1)->hasAttached(
-            Member::factory(2),
-            ['type' => 'member']
+        Membership::factory()->hasAttached(
+            Member::factory(3),
+            ['type' => MemberMembership::TYPE_MEMBER]
         )->hasAttached(
-            User::factory(1),
-            ['type' => 'contact']
+            Member::factory(1),
+            ['type' => MemberMembership::TYPE_CONTACT]
         )->create();
+
+        Member::factory(10)->create();
     }
 }

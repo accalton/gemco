@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Member extends Model
 {
@@ -19,18 +19,18 @@ class Member extends Model
     ];
 
     /**
-     * @return MorphMany
+     * @return BelongsToMany
      */
-    public function memberships(): MorphToMany
+    public function membership(): BelongsToMany
     {
-        return $this->morphToMany(Membership::class, 'membershipable')->withPivot('order', 'type');
+        return $this->belongsToMany(Membership::class);
     }
 
     /**
      * @return HasMany
      */
-    public function membershipables(): HasMany
+    public function member_memberships(): HasMany
     {
-        return $this->hasMany(Membershipable::class, 'membershipable_id')->where('membershipable_type', static::class);
+        return $this->hasMany(MemberMembership::class);
     }
 }

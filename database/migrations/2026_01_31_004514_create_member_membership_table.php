@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('membershipables', function (Blueprint $table) {
+        Schema::create('member_membership', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('member_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->foreignId('membership_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->foreignId('membershipable_id')
-                ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->string('membershipable_type');
             $table->string('type');
-            $table->integer('order')->unsigned()->default(1);
             $table->timestamps();
         });
     }
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('membership_user');
+        Schema::dropIfExists('member_membership');
     }
 };
