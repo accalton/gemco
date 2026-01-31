@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('suburb');
             $table->string('state');
             $table->string('postcode');
+            $table->string('full_address')->virtualAs('CONCAT_WS(", ", line1, line2, suburb, state, postcode)');
             $table->timestamps();
         });
     }

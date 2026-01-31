@@ -41,33 +41,30 @@ class MemberForm
                                 TextInput::make('phone')
                                     ->tel(),
                             ])->columnSpanFull(),
-                            Fieldset::make('Address')
-                                ->relationship(
-                                    condition: fn (?array $state):bool => filled($state['line1']),
-                                    name: 'address'
-                                )
-                                ->schema([
-                                    TextInput::make('line1')
-                                        ->columnSpanFull()
-                                        ->live()
-                                        ->required(fn (Get $get): bool => self::addressFieldsRequired($get)),
-                                    TextInput::make('line2')
-                                        ->columnSpanFull()
-                                        ->live(),
-                                    TextInput::make('suburb')
-                                        ->live()
-                                        ->required(fn (Get $get): bool => self::addressFieldsRequired($get)),
+                            Select::make('address')
+                                ->columnSpanFull()
+                                ->createOptionForm([
+                                    TextInput::make('line1')->required(),
+                                    TextInput::make('line2'),
+                                    TextInput::make('suburb')->required(),
                                     TextInput::make('postcode')
                                         ->length(4)
-                                        ->live()
-                                        ->required(fn (Get $get): bool => self::addressFieldsRequired($get)),
+                                        ->required(),
                                     Select::make('state')
-                                        ->live()
                                         ->options(Address::STATES)
-                                        ->required(fn (Get $get): bool => self::addressFieldsRequired($get)),
                                 ])
-                                ->columns(3)
-                                ->columnSpanFull(),
+                                ->editOptionForm([
+                                    TextInput::make('line1')->required(),
+                                    TextInput::make('line2'),
+                                    TextInput::make('suburb')->required(),
+                                    TextInput::make('postcode')
+                                        ->length(4)
+                                        ->required(),
+                                    Select::make('state')
+                                        ->options(Address::STATES)
+                                ])
+                                ->relationship(name: 'address', titleAttribute: 'full_address')
+                                ->searchable(),
                             Fieldset::make('Identifications')
                                 ->schema([
                                     Repeater::make('identifications')
