@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Address;
 use App\Models\Member;
 use App\Models\MemberMembership;
 use App\Models\Membership;
@@ -32,14 +33,31 @@ class DatabaseSeeder extends Seeder
      */
     private function seedMemberships(): void
     {
+        $address = Address::factory()->create();
         Membership::factory()->hasAttached(
-            Member::factory(3),
+            Member::factory(3)->for($address),
             ['type' => MemberMembership::TYPE_MEMBER]
         )->hasAttached(
             Member::factory(1),
             ['type' => MemberMembership::TYPE_CONTACT]
         )->create();
 
-        Member::factory(10)->create();
+        Membership::factory()->hasAttached(
+            Member::factory(1)->for($address),
+            ['type' => MemberMembership::TYPE_MEMBER]
+        )->hasAttached(
+            Member::factory(1),
+            ['type' => MemberMembership::TYPE_CONTACT]
+        )->create();
+
+        Membership::factory()->hasAttached(
+            Member::factory(5)->for($address),
+            ['type' => MemberMembership::TYPE_MEMBER]
+        )->hasAttached(
+            Member::factory(1),
+            ['type' => MemberMembership::TYPE_CONTACT]
+        )->create();
+
+        Member::factory(4)->for(Address::factory())->create();
     }
 }

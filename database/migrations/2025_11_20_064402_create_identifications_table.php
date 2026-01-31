@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('identifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
+            $table->foreignId('member_id')
                 ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->cascadeOnUpdate()
+                ->cascadeOnUpdate();
             $table->string('type');
             $table->string('number')->nullable();
-            $table->string('issued')->nullable();
             $table->string('expiry')->nullable();
             $table->string('upload')->nullable();
             $table->timestamps();

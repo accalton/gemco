@@ -22,7 +22,8 @@ class MembershipsTable
                 Columns\TextColumn::make('type')
                     ->formatStateUsing(fn (string $state): string => Membership::TYPES[$state]),
                 Columns\TextColumn::make('members.name')
-                    ->bulleted(),
+                    ->bulleted()
+                    ->searchable(),
                 Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -32,6 +33,7 @@ class MembershipsTable
                         Membership::STATUS_PENDING   => 'warning',
                         Membership::STATUS_REVOKED   => 'gray'
                     }),
+                Columns\TextColumn::make('expiry')
             ])
             ->defaultSort('id', 'desc')
             ->filters([

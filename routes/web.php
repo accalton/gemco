@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Member;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -7,5 +8,7 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
-    
+    $member = Member::find(1);
+
+    var_dump($member->address->count());
 });

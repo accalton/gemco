@@ -11,7 +11,8 @@ class Identification extends Model
     use HasFactory;
 
     public const TYPES = [
-        'working-with-children' => 'Working With Children'
+        'working-with-children' => 'Working With Children',
+        'victorian-institute-of-teaching' => 'Victorian Institute of Teaching'
     ];
 
     protected $fillable = [
@@ -21,4 +22,12 @@ class Identification extends Model
         'type',
         'upload',
     ];
+
+    /**
+     * @return BelongsTo
+     */
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
+    }
 }

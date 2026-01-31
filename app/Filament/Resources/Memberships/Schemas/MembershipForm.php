@@ -24,6 +24,7 @@ class MembershipForm
                     Section::make()
                         ->schema([
                             Repeater::make('members')
+                                ->defaultItems(0)
                                 ->label('Members')
                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MemberMembership::TYPE_MEMBER]))
                                 ->relationship(
@@ -37,14 +38,16 @@ class MembershipForm
                                         ->preload()
                                         ->relationship(
                                             modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
-                                                ->whereRelation('member_memberships', 'id', $record->id ?? null)
-                                                ->orWhereDoesntHave('member_memberships'),
+                                                ->whereDoesntHave('member_memberships')
+                                                ->orWhereRelation('member_memberships', 'id', $record->id ?? null),
                                             name: 'member',
                                             titleAttribute: 'name'
                                         )
+                                        ->required()
                                         ->searchable(),
                                 ),
                             Repeater::make('contacts')
+                                ->defaultItems(0)
                                 ->label('Contacts')
                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MemberMembership::TYPE_CONTACT]))
                                 ->relationship(
@@ -58,11 +61,12 @@ class MembershipForm
                                         ->preload()
                                         ->relationship(
                                             modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
-                                                ->whereRelation('member_memberships', 'id', $record->id ?? null)
-                                                ->orWhereDoesntHave('member_memberships'),
+                                                ->whereDoesntHave('member_memberships')
+                                                ->orWhereRelation('member_memberships', 'id', $record->id ?? null),
                                             name: 'member',
                                             titleAttribute: 'name'
                                         )
+                                        ->required()
                                         ->searchable(),
                                 )
                         ])->columnSpanFull(),

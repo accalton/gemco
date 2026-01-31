@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('member_id')
                 ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->foreignId('membership_id')
                 ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->string('type');
             $table->timestamps();
         });

@@ -17,6 +17,11 @@ return new class extends Migration
             $table->date('date_of_birth')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
+            $table->foreignId('address_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

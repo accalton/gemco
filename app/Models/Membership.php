@@ -47,7 +47,7 @@ class Membership extends Model
      */
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(Member::class);
+        return $this->belongsToMany(Member::class)->withPivot('type');
     }
 
     /**
