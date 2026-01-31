@@ -45,7 +45,8 @@ class MembershipForm
                                         )
                                         ->required()
                                         ->searchable(),
-                                ),
+                                )
+                                ->orderColumn('order'),
                             Repeater::make('contacts')
                                 ->defaultItems(0)
                                 ->label('Contacts')
@@ -69,6 +70,7 @@ class MembershipForm
                                         ->required()
                                         ->searchable(),
                                 )
+                                ->orderColumn('order')
                         ])->columnSpanFull(),
                     Section::make()
                         ->schema([
