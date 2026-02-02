@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MembershipController;
 use App\Models\Member;
 use Illuminate\Support\Facades\Route;
 
@@ -7,8 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test', function () {
-    $member = Member::find(1);
-
-    var_dump($member->address->count());
+Route::prefix('memberships')->name('memberships.')->controller(MembershipController::class)->group(function () {
+    Route::get('create', 'create');
+    Route::post('store', 'store');
 });
