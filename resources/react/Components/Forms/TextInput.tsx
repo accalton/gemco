@@ -2,12 +2,13 @@ interface Props {
     autofocus?: boolean,
     label: string,
     name: string,
+    onUpdate: Function,
     value?: string
 }
 
-const TextInput = ({ autofocus = false, label, name, value }: Props) => {
-    const handleChange = (event: React.ChangeEvent<{ name: string, value: string }>) => {
-        // update(event.target.name, event.target.value);
+const TextInput = ({ autofocus = false, label, name, onUpdate, value }: Props) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onUpdate(event.target.name, event.target.value);
     }
 
     return (
