@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Membership;
 use Illuminate\Http\Request;
 
 class MembershipController extends Controller
 {
     public function create()
     {
-        return view('memberships.create');
+        return view('memberships.form');
     }
 
-    public function store()
+    public function edit(Membership $membership)
     {
-        return response()->json([
-            'message' => 'Posted!',
-            'data' => request()->post()
-        ]);
+        return view('memberships.form');
     }
 }

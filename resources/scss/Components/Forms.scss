@@ -1,10 +1,13 @@
 form {
     fieldset {
+        border: 1px solid black;
+        border-radius: 5px;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
         margin: 10px auto;
         max-width: 800px;
+        padding: 10px;
 
         div.form-input {
             border: 1px solid black;

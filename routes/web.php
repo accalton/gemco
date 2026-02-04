@@ -10,5 +10,5 @@ Route::get('/', function () {
 
 Route::prefix('memberships')->name('memberships.')->controller(MembershipController::class)->group(function () {
     Route::get('create', 'create');
-    Route::post('store', 'store');
+    Route::get('edit/{membership}', 'edit');
 });
