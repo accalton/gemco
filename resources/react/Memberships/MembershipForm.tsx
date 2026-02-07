@@ -5,6 +5,7 @@ import { MemberFieldset } from './Components';
 import { Repeater, Submit } from '../Components/Forms';
 
 interface MembershipFormState {
+    contacts: Member[],
     id: number | null,
     members: Member[],
     type: string,
@@ -12,6 +13,7 @@ interface MembershipFormState {
 
 const MembershipForm = () => {
     const [formData, setFormData] = useState<MembershipFormState>({
+        contacts: [],
         id: null,
         members: [],
         type: ''
@@ -21,36 +23,59 @@ const MembershipForm = () => {
         const membershipId = window.location.href.split('/').pop();
         if (membershipId) {
             axios.get('/api/memberships/' + membershipId)
-                .then(response => JSON.parse(response.data))
-                .then(data => setFormData(data));
+                .then(response => setFormData(response.data));
         }
     }, []);
 
-    const addMember = () => {
-        const newMember: Member = {
-            name: '',
-            date_of_birth: '',
-            email: '',
-            phone: ''
-        };
-
-        let members = formData.members;
-        members.push(newMember);
-        setFormData({...formData, members});
-    }
-
-    const removeMember = (index: number) => {
-        if (confirm('Remove member? This cannot be undone without refreshing the page.')) {
-            let members = formData.members;
-            members.splice(index, 1);
-            setFormData({...formData, members});
+    const addRow = (type: 'contact' | 'member') => {
+        let rowType = convertType(type);
+        if (rowType) {
+            const newRow: Member = {
+                date_of_birth: '',
+                email: '',
+                membership_member: {
+                    type
+                },
+                name: '',
+                phone: '',
+            }
+    
+            let rows = formData[rowType];
+            rows.push(newRow);
+            setFormData({...formData, [rowType]: rows});
         }
     }
 
-    const handleChangeMember = (index: number, field: string, value: string) => {
-        let members = formData.members;
-        members[index] = {...members[index], [field]: value}
-        setFormData({...formData, members});
+    const convertType = (type: string): void | 'contacts' | 'members' => {
+            switch (type) {
+                case 'contact':
+                    return 'contacts';
+                case 'member':
+                    return 'members';
+                default:
+                    return;
+            }
+    }
+
+    const removeRow = (index: number, type: 'contact' | 'member') => {
+        let rowType: void | 'contacts' | 'members' = convertType(type);
+        if (rowType) {
+            if (confirm('Remove row? This cannot be undone without refreshing the page.')) {
+                let rows = formData[rowType];
+                rows.splice(index, 1);
+                setFormData({...formData, [rowType]: rows});
+            }
+        }
+    }
+
+    const handleChangeRow = (type: 'contact' | 'member', index: number, field: string, value: string) => {
+        let rowType = convertType(type);
+
+        if (rowType) {
+            let rows = formData[rowType];
+            rows[index] = {...rows[index], [field]: value};
+            setFormData({...formData, [rowType]: rows});
+        }
     }
 
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
@@ -61,16 +86,34 @@ const MembershipForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <Repeater addRow={addMember}>
-                <select onChange={(event) => setFormData({...formData, type: event.target.value})} value={formData.type}>
-                    <option>Please select</option>
-                    <option value={'adult'}>Adult</option>
-                    <option value={'conscession'}>Conscession</option>
-                    <option value={'family'}>Family</option>
-                    <option value={'youth'}>Youth</option>
-                </select>
+            <select name={'type'} onChange={(event) => setFormData({...formData, type: event.target.value})} value={formData.type}>
+                <option>Please select</option>
+                <option value={'adult'}>Adult</option>
+                <option value={'conscession'}>Conscession</option>
+                <option value={'family'}>Family</option>
+                <option value={'youth'}>Youth</option>
+            </select>
+            <Repeater addRow={() => addRow('member')}>
                 {formData.members.map((member, index) => (
-                    <MemberFieldset member={member} onUpdate={handleChangeMember} rowIndex={index} removeMember={removeMember} />
+                    <MemberFieldset
+                        member={member}
+                        onUpdate={handleChangeRow}
+                        rowIndex={index}
+                        removeRow={removeRow}
+                    />
+                ))}
+            </Repeater>
+
+            <hr />
+
+            <Repeater addRow={() => addRow('contact')}>
+                {formData.contacts.map((contact, index) => (
+                    <MemberFieldset
+                        member={contact}
+                        onUpdate={handleChangeRow}
+                        rowIndex={index}
+                        removeRow={removeRow}
+                    />
                 ))}
             </Repeater>
             <Submit />

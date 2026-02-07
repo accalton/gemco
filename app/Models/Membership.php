@@ -45,9 +45,25 @@ class Membership extends Model
     /**
      * @return BelongsToMany
      */
+    public function contacts(): BelongsToMany
+    {
+        return $this->belongsToMany(Member::class)
+            ->as('membershipMember')
+            ->wherePivot('type', 'contact')
+            ->withPivot('type')
+            ->orderByPivot('order');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(Member::class)->withPivot('type')->orderByPivot('order');
+        return $this->belongsToMany(Member::class)
+            ->as('membershipMember')
+            ->wherePivot('type', 'member')
+            ->withPivot('type')
+            ->orderByPivot('order');
     }
 
     /**

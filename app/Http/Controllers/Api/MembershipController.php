@@ -10,7 +10,7 @@ class MembershipController extends Controller
 {
     public function get(Membership $membership)
     {
-        return response()->json($membership->load('members')->toJson());
+        return response()->json($membership->load(['contacts', 'members']));
     }
 
     public function post()
