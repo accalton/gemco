@@ -1,6 +1,15 @@
 form {
+    border: 1px solid black;
+    border-radius: 5px;
     max-width: 800px;
-    margin: 0 auto;
+    margin: 25px auto;
+    padding: 0 10px;
+
+    .repeater {
+        button {
+            cursor: pointer;
+        }
+    }
 
     fieldset {
         border: 1px solid black;
@@ -10,29 +19,41 @@ form {
         gap: 10px;
         margin: 10px auto;
         padding: 10px;
+    }
 
-        div.form-input {
-            border: 1px solid black;
-            border-radius: 5px;
-            box-sizing: border-box;
-            flex: 1;
-            padding: 5px;
+    div.form-input {
+        border: 1px solid black;
+        border-radius: 5px;
+        box-sizing: border-box;
+        flex: 1;
+        padding: 5px;
 
-            &:nth-child(even) {
-                flex-basis: 50%;
-            }
-
-            &:nth-child(odd) {
-                flex-basis: 35%;
-            }
-
-            input {
-                border-bottom: 1px solid black;
-                border-radius: 5px;
-                outline: 1px solid #dddddd;
-                padding-left: 5px;
-                width: 100%;
-            }
+        &:nth-child(even) {
+            flex-basis: 50%;
         }
+
+        &:nth-child(odd) {
+            flex-basis: 35%;
+        }
+
+        input {
+            border-bottom: 1px solid black;
+            border-radius: 5px;
+            outline: 1px solid #dddddd;
+            padding-left: 5px;
+            width: 100%;
+        }
+
+        select {
+            outline: 1px solid black;
+            width: 100%;
+        }
+    }
+
+    h2 {
+        flex-shrink: 0;
+        flex-basis: 100%;
+        font-size: 1.3em;
+        margin: 10px auto;
     }
 }
