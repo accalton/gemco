@@ -2,15 +2,21 @@ import { DatePicker, Fieldset, TextInput } from '../../Components/Forms';
 import Member from '../../Interfaces/Member';
 
 interface Props {
+    changeType: Function,
     member: Member,
     onUpdate: Function,
     removeRow: Function,
     rowIndex: number,
 }
 
-const MemberFieldset = ({ member, onUpdate, removeRow, rowIndex }: Props) => {
+const MemberFieldset = ({ changeType, member, onUpdate, removeRow, rowIndex }: Props) => {
     const handleChange = (field: string, value: string) => {
         onUpdate(member.membership_member.type, rowIndex, field, value);
+    }
+
+    const handleChangeType = (event: React.MouseEvent) => {
+        event.preventDefault();
+        changeType(rowIndex, member.membership_member.type);
     }
 
     const handleRemoveRow = (event: React.MouseEvent) => {
@@ -25,6 +31,9 @@ const MemberFieldset = ({ member, onUpdate, removeRow, rowIndex }: Props) => {
                 flexBasis: '100%',
                 textAlign: 'right'
             }}>
+                <button onClick={handleChangeType}>
+                    Change
+                </button>
                 <button onClick={handleRemoveRow}>
                     Remove
                 </button>

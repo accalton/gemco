@@ -21,6 +21,8 @@ const MembershipForm = () => {
 
     const [membersLimit, setMembersLimit] = useState<number | null>();
 
+    const tooManyMembersAlert = 'Only "Family" memberships may have more than one member. Please delete any additional members before selecting a different type.';
+
     useEffect(() => {
         const membershipId = window.location.href.split('/').pop();
         if (membershipId) {
@@ -77,6 +79,40 @@ const MembershipForm = () => {
         }
     }
 
+    const handleContactToMember = (index: number) => {
+        if (membersLimit && formData.members.length >= membersLimit) {
+            alert(tooManyMembersAlert);
+            return;
+        }
+
+        convertRowType(index, 'member');
+    }
+
+    const handleMemberToContact = (index: number) => {
+        convertRowType(index, 'contact');
+    }
+
+    const convertRowType = (index: number, newType: 'contact' | 'member') => {
+        const contacts = formData.contacts;
+        const members = formData.members;
+        switch (newType) {
+            case 'contact':
+                const member = members[index];
+                members.splice(index, 1);
+                member.membership_member.type = newType;
+                contacts.push(member);
+                break;
+            case 'member':
+                const contact = contacts[index];
+                contacts.splice(index, 1);
+                contact.membership_member.type = newType;
+                members.push(contact);
+                break;
+        }
+
+        setFormData({...formData, contacts: contacts, members: members });
+    }
+
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
         axios.post('/api/memberships/post', formData)
@@ -85,7 +121,7 @@ const MembershipForm = () => {
 
     const handleChangeType = (name: string, value: string) => {
         if (value !== 'family' && formData.members.length > 1) {
-            alert('Only "Family" memberships may have more than one member. Please delete any additional members before selecting a different type.');
+            alert(tooManyMembersAlert);
             return;
         }
 
@@ -138,6 +174,7 @@ const MembershipForm = () => {
             <Repeater addRow={() => addRow('member')} addRowLabel={'Add Member'} label={'Members'} limit={membersLimit}>
                 {formData.members.map((member, index) => (
                     <MemberFieldset
+                        changeType={handleMemberToContact}
                         key={index}
                         member={member}
                         onUpdate={handleChangeRow}
@@ -147,11 +184,10 @@ const MembershipForm = () => {
                 ))}
             </Repeater>
 
-            <hr />
-
             <Repeater addRow={() => addRow('contact')} addRowLabel={'Add Contact'} label={'Contacts'} limit={2}>
                 {formData.contacts.map((contact, index) => (
                     <MemberFieldset
+                        changeType={handleContactToMember}
                         key={index}
                         member={contact}
                         onUpdate={handleChangeRow}
