@@ -12,6 +12,7 @@ interface MembershipFormState {
 }
 
 const MembershipForm = () => {
+    const [apiToken, setApiToken] = useState<null|string>(null);
     const [formData, setFormData] = useState<MembershipFormState>({
         contacts: [],
         id: null,
@@ -24,12 +25,21 @@ const MembershipForm = () => {
     const tooManyMembersAlert = 'Only "Family" memberships may have more than one member. Please delete any additional members before selecting a different type.';
 
     useEffect(() => {
-        const membershipId = window.location.href.split('/').pop();
-        if (membershipId) {
-            axios.get('/api/memberships/' + membershipId)
-                .then(response => setFormData(response.data));
-        }
+        getApiToken();
     }, []);
+
+    useEffect(() => {
+        if (apiToken) {
+            const membershipId = window.location.href.split('/').pop();
+            if (membershipId) {
+                axios.get('/api/memberships/' + membershipId, {
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`
+                    }
+                }).then(response => setFormData(response.data));
+            }
+        }
+    }, [apiToken]);
 
     useEffect(() => {
         if (formData.type !== 'family') {
@@ -67,6 +77,14 @@ const MembershipForm = () => {
                 default:
                     return;
             }
+    }
+
+    const getApiToken = async () => {
+        if (!apiToken) {
+            await axios.post('/create-token', {
+                token_name: 'apiToken'
+            }).then(response => setApiToken(response.data.token));
+        }
     }
 
     const handleChangeRow = (type: 'contact' | 'member', index: number, field: string, value: string) => {

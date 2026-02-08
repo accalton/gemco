@@ -3,7 +3,7 @@ interface Props {
     name: string,
     onChange: Function,
     options: SelectOption[],
-    required: boolean,
+    required?: boolean,
     value?: string
 }
 

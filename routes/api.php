@@ -8,7 +8,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('memberships')->name('memberships.')->controller(MembershipController::class)->group(function () {
-    Route::get('{membership}', 'get');
-    Route::post('post', 'post');
-})->middleware('auth:sanctum');
+Route::prefix('memberships')
+    ->middleware('auth:sanctum')
+    ->name('memberships.')
+    ->controller(MembershipController::class)
+    ->group(function () {
+        Route::get('{membership}', 'get');
+        Route::post('post', 'post');
+    }
+);
