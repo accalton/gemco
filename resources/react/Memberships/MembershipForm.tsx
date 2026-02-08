@@ -196,7 +196,8 @@ const MembershipForm = () => {
                     />
                 ))}
             </Repeater>
-            <Submit />
+
+            <Submit label={'Save Membership'} />
         </form>
     );
 }

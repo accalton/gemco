@@ -16,7 +16,7 @@ form {
         }
     }
 
-    button {
+    button, input[type='submit'] {
         border: 1px solid #dddddd;
         border-radius: 5px;
         box-shadow: 2px 2px 2px #555555;
@@ -26,15 +26,6 @@ form {
         &:hover {
             background: #dddddd;
         }
-    }
-
-    fieldset {
-        border-bottom: 1px solid #888888;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 10px auto;
-        padding-bottom: 10px;
     }
 
     div.form-input {
@@ -67,10 +58,24 @@ form {
         }
     }
 
+    fieldset {
+        border-bottom: 1px solid #888888;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px auto;
+        padding-bottom: 10px;
+    }
+
     h2 {
         flex-shrink: 0;
         flex-basis: 100%;
         font-size: 1.3em;
+        margin: 10px auto;
+    }
+
+    input[type='submit'] {
+        display: block;
         margin: 10px auto;
     }
 }
