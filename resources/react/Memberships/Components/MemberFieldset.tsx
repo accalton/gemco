@@ -26,22 +26,42 @@ const MemberFieldset = ({ changeType, member, onUpdate, removeRow, rowIndex }: P
 
     return (
         <Fieldset>
-            <div style={{
-                flexGrow: 1,
-                flexBasis: '100%',
-                textAlign: 'right'
-            }}>
+            <div className="button-controls">
                 <button onClick={handleChangeType}>
-                    Change
+                    Change to {member.membership_member.type === 'contact' ? 'Member' : 'Contact'}
                 </button>
                 <button onClick={handleRemoveRow}>
                     Remove
                 </button>
             </div>
-            <TextInput name={'name'} label={'Full Name'} value={member.name} onChange={handleChange} />
-            <DatePicker name={'date_of_birth'} label={'Date of Birth'} value={member.date_of_birth} onChange={handleChange} />
-            <TextInput name={'email'} label={'Email Address'} value={member.email} onChange={handleChange} />
-            <TextInput name={'phone'} label={'Phone Number'} value={member.phone} onChange={handleChange} />
+            <TextInput
+                name={'name'}
+                label={'Full Name'}
+                value={member.name}
+                onChange={handleChange}
+                required={true}
+            />
+            <DatePicker
+                name={'date_of_birth'}
+                label={'Date of Birth'}
+                value={member.date_of_birth}
+                onChange={handleChange}
+                required={member.membership_member.type === 'member' ? true : false}
+            />
+            <TextInput
+                name={'email'}
+                label={'Email Address'}
+                value={member.email}
+                onChange={handleChange}
+                required={true}
+            />
+            <TextInput
+                name={'phone'}
+                label={'Phone Number'}
+                value={member.phone}
+                onChange={handleChange}
+                required={true}
+            />
         </Fieldset>
     );
 }

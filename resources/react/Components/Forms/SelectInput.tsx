@@ -3,6 +3,7 @@ interface Props {
     name: string,
     onChange: Function,
     options: SelectOption[],
+    required: boolean,
     value?: string
 }
 
@@ -11,7 +12,7 @@ interface SelectOption {
     value: string,
 }
 
-const SelectInput = ({ label, name, onChange, options, value }: Props) => {
+const SelectInput = ({ label, name, onChange, options, required, value }: Props) => {
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         onChange(event.target.name, event.target.value);
     }
@@ -19,7 +20,9 @@ const SelectInput = ({ label, name, onChange, options, value }: Props) => {
     return (
         <div className={'form-input'}>
             <label>
-                {label}:
+                {label}{required && (
+                    <span className="required-input">*</span>
+                )}:
                 <select name={name} value={value} onChange={handleChange}>
                     {options.map((option, index) => (
                         <option key={index} value={option.value}>{option.label}</option>

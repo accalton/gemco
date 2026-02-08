@@ -39,31 +39,27 @@ class DatabaseSeeder extends Seeder
      */
     private function seedMemberships(): void
     {
-        $address = Address::factory()->create();
-        Membership::factory()->hasAttached(
-            Member::factory(3)->for($address),
-            ['type' => MemberMembership::TYPE_MEMBER]
-        )->hasAttached(
-            Member::factory(1),
-            ['type' => MemberMembership::TYPE_CONTACT]
-        )->create();
+        $addresses = Address::factory()->count(10)->create();
 
-        Membership::factory()->hasAttached(
-            Member::factory(1)->for($address),
-            ['type' => MemberMembership::TYPE_MEMBER]
-        )->hasAttached(
-            Member::factory(1),
-            ['type' => MemberMembership::TYPE_CONTACT]
-        )->create();
+        foreach ($addresses as $address) {
+            $membershipType = array_rand(Membership::TYPES);
 
-        Membership::factory()->hasAttached(
-            Member::factory(5)->for($address),
-            ['type' => MemberMembership::TYPE_MEMBER]
-        )->hasAttached(
-            Member::factory(1),
-            ['type' => MemberMembership::TYPE_CONTACT]
-        )->create();
+            $numberOfMembers = 1;
+            if ($membershipType === Membership::TYPE_FAMILY) {
+                $numberOfMembers = rand(2, 5);
+            }
 
-        Member::factory(4)->for(Address::factory())->create();
+            Membership::factory()->state([
+                'type' => $membershipType
+            ])->hasAttached(
+                Member::factory()->count($numberOfMembers)->for($address),
+                ['type' => MemberMembership::TYPE_MEMBER]
+            )->hasAttached(
+                Member::factory()->count(rand(1, 3)),
+                ['type' => MemberMembership::TYPE_CONTACT]
+            )->create();
+        }
+
+        Member::factory(10)->for(Address::factory())->create();
     }
 }

@@ -35,7 +35,9 @@ const Repeater = ({ addRow, addRowLabel, children, label, limit }: Props) => {
             <h2>{label}</h2>
             {children}
             {showAddRowButton() && (
-                <button onClick={handleAddRow}>{addRowLabel}</button>
+                <div className="button-controls">
+                    <button onClick={handleAddRow}>{addRowLabel}</button>
+                </div>
             )}
         </div>
     );

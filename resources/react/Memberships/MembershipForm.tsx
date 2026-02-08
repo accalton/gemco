@@ -141,37 +141,39 @@ const MembershipForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h2>Memberhip Details</h2>
-            <SelectInput
-                label='Type'
-                name={'type'}
-                onChange={handleChangeType}
-                options={[
-                    {
-                        label: 'Please select . . .',
-                        value: '',
-                    },
-                    {
-                        label: 'Adult',
-                        value: 'adult',
-                    },
-                    {
-                        label: 'Conscession',
-                        value: 'conscession',
-                    },
-                    {
-                        label: 'Family',
-                        value: 'family',
-                    },
-                    {
-                        label: 'Youth',
-                        value: 'youth',
-                    }
-                ]}
-                value={formData.type}
-            />
+            <fieldset>
+                <h2>Memberhip Details</h2>
+                <SelectInput
+                    label='Type'
+                    name={'type'}
+                    onChange={handleChangeType}
+                    options={[
+                        {
+                            label: 'Please select . . .',
+                            value: '',
+                        },
+                        {
+                            label: 'Adult',
+                            value: 'adult',
+                        },
+                        {
+                            label: 'Conscession',
+                            value: 'conscession',
+                        },
+                        {
+                            label: 'Family',
+                            value: 'family',
+                        },
+                        {
+                            label: 'Youth',
+                            value: 'youth',
+                        }
+                    ]}
+                    value={formData.type}
+                />
+            </fieldset>
 
-            <Repeater addRow={() => addRow('member')} addRowLabel={'Add Member'} label={'Members'} limit={membersLimit}>
+            <Repeater addRow={() => addRow('member')} addRowLabel={'+ Add a Member'} label={'Members'} limit={membersLimit}>
                 {formData.members.map((member, index) => (
                     <MemberFieldset
                         changeType={handleMemberToContact}
@@ -184,7 +186,7 @@ const MembershipForm = () => {
                 ))}
             </Repeater>
 
-            <Repeater addRow={() => addRow('contact')} addRowLabel={'Add Contact'} label={'Contacts'} limit={2}>
+            <Repeater addRow={() => addRow('contact')} addRowLabel={'+ Add a Contact'} label={'Contacts'}>
                 {formData.contacts.map((contact, index) => (
                     <MemberFieldset
                         changeType={handleContactToMember}

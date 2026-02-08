@@ -3,10 +3,11 @@ interface Props {
     label: string,
     name: string,
     onChange: Function,
+    required?: boolean,
     value?: string,
 }
 
-const DatePicker = ({ autofocus = false, label, name, onChange, value }: Props) => {
+const DatePicker = ({ autofocus = false, label, name, onChange, required, value }: Props) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange(event.target.name, event.target.value);
     }
@@ -14,7 +15,9 @@ const DatePicker = ({ autofocus = false, label, name, onChange, value }: Props) 
     return (
         <div className={'form-input'}>
             <label>
-                {label}
+                {label}{required && (
+                    <span className="required-input">*</span>
+                )}:
                 <input type="date" name={name} value={value} autoFocus={autofocus} onChange={handleChange} />
             </label>
         </div>

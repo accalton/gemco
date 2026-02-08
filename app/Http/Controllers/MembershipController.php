@@ -12,8 +12,15 @@ class MembershipController extends Controller
         return view('memberships.form');
     }
 
-    public function edit(Membership $membership)
+    public function edit()
     {
         return view('memberships.form');
+    }
+
+    public function index()
+    {
+        $memberships = Membership::all();
+
+        return view('memberships.index', compact('memberships'));
     }
 }

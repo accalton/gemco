@@ -9,6 +9,7 @@ Route::get('/', function () {
 });
 
 Route::prefix('memberships')->name('memberships.')->controller(MembershipController::class)->group(function () {
-    Route::get('create', 'create');
-    Route::get('edit/{membership}', 'edit');
+    Route::get('/', 'index')->name('index');
+    Route::get('create', 'create')->name('create');
+    Route::get('edit/{membership}', 'edit')->name('edit');
 });
