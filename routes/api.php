@@ -14,6 +14,6 @@ Route::prefix('memberships')
     ->controller(MembershipController::class)
     ->group(function () {
         Route::get('{membership}', 'get');
-        Route::post('post', 'post');
+        Route::post('{membership}', 'post');
     }
 );

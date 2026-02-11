@@ -1,44 +1,30 @@
-import { Children } from 'react';
+import { useEffect, useState } from "react";
+import { useFormDataContext } from "../../Contexts/FormDataContext";
+import { MembershipFormState } from "../../Interfaces";
 
 interface Props extends React.PropsWithChildren {
-    addRow: React.MouseEventHandler,
-    addRowLabel: string,
-    label: string,
-    limit?: number | null,
+    dataKey: string,
+    label?: string,
 }
 
-const Repeater = ({ addRow, addRowLabel, children, label, limit }: Props) => {
-    const handleAddRow = (event: React.MouseEvent) => {
-        event.preventDefault();
+const Repeater = ({ children, dataKey, label }: Props) => {
+    const { formData } = useFormDataContext();
+    const [rows, setRows] = useState<any>([]);
 
-        if (limit) {
-            const currentRows = Children.count(children);
-            if (currentRows >= limit) {
-                return;
-            }
+    useEffect(() => {
+        if (formData !== null) {
+            setRows(formData[dataKey as keyof MembershipFormState]);
         }
-
-        addRow(event);
-    }
-
-    const showAddRowButton = () => {
-        if (limit) {
-            const currentRows = Children.count(children);
-            return currentRows < limit;
-        } else {
-            return true;
-        }
-    }
+    }, [formData]);
 
     return (
         <div className="repeater">
             <h2>{label}</h2>
-            {children}
-            {showAddRowButton() && (
-                <div className="button-controls">
-                    <button onClick={handleAddRow}>{addRowLabel}</button>
+            {rows.map(() => (
+                <div>
+                    Hooray
                 </div>
-            )}
+            ))}
         </div>
     );
 }

@@ -13,7 +13,7 @@ class MembershipController extends Controller
         return response()->json($membership->load(['contacts', 'members']));
     }
 
-    public function post()
+    public function post(Membership $membership)
     {
         return response()->json([
             'message' => 'Posted!',

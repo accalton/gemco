@@ -1,7 +1,9 @@
+import { useFormDataContext } from "../../Contexts/FormDataContext";
+
 interface Props {
+    isValid?: Function,
     label: string,
     name: string,
-    onChange: Function,
     options: SelectOption[],
     required?: boolean,
     value?: string
@@ -12,9 +14,13 @@ interface SelectOption {
     value: string,
 }
 
-const SelectInput = ({ label, name, onChange, options, required, value }: Props) => {
+const SelectInput = ({ isValid = () => true, label, name, options, required, value }: Props) => {
+    const { formData, setFormData } = useFormDataContext();
+
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        onChange(event.target.name, event.target.value);
+        if (isValid(event.target.value)) {
+            setFormData({...formData, [event.target.name]: event.target.value});
+        }
     }
 
     return (
