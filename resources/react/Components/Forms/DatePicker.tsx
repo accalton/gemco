@@ -4,12 +4,13 @@ interface Props {
     name: string,
     onChange: Function,
     required?: boolean,
+    rowIndex?: number,
     value?: string,
 }
 
-const DatePicker = ({ autofocus = false, label, name, onChange, required, value }: Props) => {
+const DatePicker = ({ autofocus = false, label, name, onChange, required, rowIndex, value }: Props) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(event.target.name, event.target.value);
+        onChange(event, rowIndex)
     }
 
     return (

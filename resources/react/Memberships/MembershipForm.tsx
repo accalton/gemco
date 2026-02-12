@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { Form, Repeater, SelectInput } from '../Components/Forms';
-import { FormDataContext } from '../Contexts/FormDataContext';
+import { Form, Fieldset, SelectInput } from '../Components/Forms';
+import { FormContext } from '../Contexts/FormContext';
 import { MembershipFormState } from '../Interfaces/';
+import { MemberFieldset } from './Components';
 
 const MembershipForm = () => {
-    const [formData, setFormData] = useState<MembershipFormState>({
+    const [formState, setFormState] = useState<MembershipFormState>({
         contacts: [],
         id: null,
         members: [],
         type: ''
     });
 
+    const membershipId = window.location.href.split('/').pop();
     const tooManyMembersAlert = 'Only "Family" memberships may have more than one member. Please delete any additional members before selecting a different type.';
 
     const validateType = (value: string) => {
-        if (value !== 'family' && formData.members.length > 1) {
+        if (value !== 'family' && formState.members.length > 1) {
             alert(tooManyMembersAlert);
             return false;
         }
@@ -23,10 +25,9 @@ const MembershipForm = () => {
     }
 
     return (
-        <FormDataContext.Provider value={{ formData, setFormData }}>
-            <Form>
-                <fieldset>
-                    <h2>Memberhip Details</h2>
+        <FormContext.Provider value={{ formState, setFormState }}>
+            <Form apiUrl={'/api/memberships/' + membershipId}>
+                <Fieldset label={'Membership Details'}>
                     <SelectInput
                         isValid={validateType}
                         label='Type'
@@ -53,15 +54,13 @@ const MembershipForm = () => {
                                 value: 'youth',
                             }
                         ]}
-                        value={formData?.type}
+                        value={formState.type}
                     />
-                </fieldset>
+                </Fieldset>
 
-                <Repeater dataKey={'members'} label={'Members'}>
-                    <div>I am a repeater.</div>
-                </Repeater>
+                <MemberFieldset />
             </Form>
-        </FormDataContext.Provider>
+        </FormContext.Provider>
     );
 }
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthorizationContext } from './../../Contexts/AuthorizationContext';
 import { useEffect, useState } from 'react';
-import { useFormDataContext } from '../../Contexts/FormDataContext';
+import { useFormContext } from '../../Contexts/FormContext';
 
 interface Props {
     apiUrl: string,
@@ -9,7 +9,6 @@ interface Props {
 
 export const useForm = ({ apiUrl }: Props) => {
     const { apiToken, setApiToken } = useAuthorizationContext();
-    const [initialLoad, setInitialLoad] = useState(false);
 
     const getApiToken = async () => {
         await axios.post('/create-token', {
@@ -34,14 +33,18 @@ export const useForm = ({ apiUrl }: Props) => {
     }
 }
 
-export const Form = ({ children }: React.PropsWithChildren) => {
+interface FormProps extends React.PropsWithChildren {
+    apiUrl: string,
+}
+
+export const Form = ({ children, apiUrl }: FormProps) => {
     const [initialized, setInitialized] = useState<boolean>(false);
 
     const { apiToken } = useAuthorizationContext();
-    const { formData, setFormData } = useFormDataContext();
+    const { formState, setFormState } = useFormContext();
 
     const { getApiToken, getFormData } = useForm({
-        apiUrl: '/api/memberships/1'
+        apiUrl
     });
 
     useEffect(() => {
@@ -51,12 +54,21 @@ export const Form = ({ children }: React.PropsWithChildren) => {
     useEffect(() => {
         if (apiToken && !initialized) {
             setInitialized(true);
-            getFormData().then(data => setFormData(data));
+            getFormData().then(data => setFormState(data));
         }
     }, [apiToken]);
 
+    useEffect(() => {
+        console.log(formState);
+    }, [formState]);
+
+    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        console.log(formState);
+    }
+
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
             {children}
         </form>
     );

@@ -1,4 +1,5 @@
-import { useFormDataContext } from "../../Contexts/FormDataContext";
+import { useEffect, useState } from "react";
+import { useRepeaterRowContext } from "../../Contexts/RepeaterRowContext";
 
 interface Props {
     isValid?: Function,
@@ -15,11 +16,22 @@ interface SelectOption {
 }
 
 const SelectInput = ({ isValid = () => true, label, name, options, required, value }: Props) => {
-    const { formData, setFormData } = useFormDataContext();
+    const [state, setState] = useState<string|undefined>();
+
+    const repeaterRowContext = useRepeaterRowContext();
+    const { rowState, setRowState } = repeaterRowContext ? repeaterRowContext : { rowState: {}, setRowState() {} }
+
+    useEffect(() => {
+        setState(value);
+    }, [value]);
+
+    useEffect(() => {
+        setRowState({...rowState, [name]: state});
+    }, [state]);
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         if (isValid(event.target.value)) {
-            setFormData({...formData, [event.target.name]: event.target.value});
+            setState(event.target.value);
         }
     }
 
@@ -29,7 +41,7 @@ const SelectInput = ({ isValid = () => true, label, name, options, required, val
                 {label}{required && (
                     <span className="required-input">*</span>
                 )}:
-                <select name={name} value={value} onChange={handleChange}>
+                <select name={name} value={state} onChange={handleChange}>
                     {options.map((option, index) => (
                         <option key={index} value={option.value}>{option.label}</option>
                     ))}
