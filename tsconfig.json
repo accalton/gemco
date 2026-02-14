@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "jsx": "react-jsx",
+        "module": "preserve",
+        "noEmit": true,
+        "paths": {
+            "@components/*": ["./resources/react/Components/*"],
+            "@contexts/*": ["./resources/react/Contexts/*"]
+        }
+    },
+    "include": ["resources/react/**/*", "vite.config.ts"]
+}

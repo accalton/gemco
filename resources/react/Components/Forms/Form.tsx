@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { useAuthorizationContext } from './../../Contexts/AuthorizationContext';
-import { useEffect, useState } from 'react';
-import { useFormContext } from '../../Contexts/FormContext';
+import { useAuthorizationContext } from '@contexts/AuthorizationContext';
+import { SetStateAction, useEffect, useState } from 'react';
+import { ParentStateContext } from '@contexts/ParentStateContext';
 
 interface Props {
     apiUrl: string,
@@ -35,13 +35,13 @@ export const useForm = ({ apiUrl }: Props) => {
 
 interface FormProps extends React.PropsWithChildren {
     apiUrl: string,
+    state: {},
+    setState: React.Dispatch<SetStateAction<{}>>
 }
 
-export const Form = ({ children, apiUrl }: FormProps) => {
-    const [initialized, setInitialized] = useState<boolean>(false);
-
+export const Form = ({ children, apiUrl, state, setState }: FormProps) => {
+    const [initialized, setInitialized] = useState(false);
     const { apiToken } = useAuthorizationContext();
-    const { formState, setFormState } = useFormContext();
 
     const { getApiToken, getFormData } = useForm({
         apiUrl
@@ -53,23 +53,22 @@ export const Form = ({ children, apiUrl }: FormProps) => {
 
     useEffect(() => {
         if (apiToken && !initialized) {
-            setInitialized(true);
-            getFormData().then(data => setFormState(data));
+            getFormData()
+                .then(data => setState(data))
+                .then(() => setInitialized(true));
         }
     }, [apiToken]);
 
-    useEffect(() => {
-        console.log(formState);
-    }, [formState]);
-
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log(formState);
+        console.log(state);
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            {children}
-        </form>
+        <ParentStateContext.Provider value={{ parentInitialized: initialized, parentState: state, setParentState: setState }}>
+            <form onSubmit={handleSubmit}>
+                {children}
+            </form>
+        </ParentStateContext.Provider>
     );
 }
