@@ -9,6 +9,7 @@ import TextInput from '@components/Forms/Inputs/TextInput';
 import Repeater from '@components/Forms/Repeater';
 
 const MembershipForm = () => {
+    const [membersLimit, setMembersLimit] = useState<number | false>(false)
     const [state, setState] = useState<MembershipFormState>({
         contacts: [],
         id: null,
@@ -17,9 +18,14 @@ const MembershipForm = () => {
     });
 
     const membershipId = window.location.href.split('/').pop();
+    const alertTooManyMembers = 'Too many members.';
 
     useEffect(() => {
-        //
+        if (state.type !== 'family') {
+            setMembersLimit(1);
+        } else {
+            setMembersLimit(false);
+        }
     }, [state]);
 
     const addRow = (type: 'contacts' | 'members') => {
@@ -38,6 +44,15 @@ const MembershipForm = () => {
         setState({...state, [type]: rows});
     }
 
+    const validateMembershipType = (value: string): boolean => {
+        if (value !== 'family' && state.members.length > 1) {
+            alert(alertTooManyMembers);
+            return false;
+        }
+
+        return true;
+    }
+
     return (
         <Form
             apiUrl={'/api/memberships/' + membershipId}
@@ -46,6 +61,7 @@ const MembershipForm = () => {
         >
             <Fieldset label={'Details'} initialState={state}>
                 <SelectInput
+                    isValid={validateMembershipType}
                     label={'Type'}
                     name={'type'}
                     options={[
@@ -74,7 +90,13 @@ const MembershipForm = () => {
                 />
             </Fieldset>
 
-            <Repeater addRow={() => addRow('members')} index={'members'} initialState={state.members} label={'Members'}>
+            <Repeater
+                addRow={() => addRow('members')}
+                initialState={state.members}
+                label={'Members'}
+                limit={membersLimit}
+                parentKey={'members'}
+            >
                 {state.members.map((member, index) => (
                     <Fieldset initialState={member} index={index}>
                         <div className="button-controls">
@@ -88,9 +110,17 @@ const MembershipForm = () => {
                 ))}
             </Repeater>
 
-            <Repeater addRow={() => addRow('contacts')} index={'contacts'} initialState={state.contacts} label={'Contacts'}>
+            <Repeater
+                addRow={() => addRow('contacts')}
+                initialState={state.contacts}
+                label={'Contacts'}
+                parentKey={'contacts'}
+            >
                 {state?.contacts.map((contact, index) => (
                     <Fieldset initialState={contact} index={index}>
+                        <div className="button-controls">
+                            <Button onClick={() => removeRow('contacts', index)} label={'Remove'} />
+                        </div>
                         <TextInput label={'Full Name'} name={'name'} value={contact.name} />
                         <DatePicker label={'Date of Birth'} name={'date_of_birth'} value={contact.date_of_birth} />
                         <TextInput label={'Email Address'} name={'email'} value={contact.email} />

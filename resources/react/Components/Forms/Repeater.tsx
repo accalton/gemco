@@ -4,20 +4,22 @@ import Button from "./Button";
 
 interface Props extends React.PropsWithChildren {
     addRow?: Function,
-    index: string | false,
     initialState: any,
     label?: string,
+    limit?: number | false,
+    parentKey: string | false,
 }
 
-const Repeater = ({ addRow, children, initialState, index = false, label }: Props) => {
+const Repeater = ({ addRow, children, initialState, label, limit, parentKey = false }: Props) => {
+    const [canAddRow, setCanAddRow] = useState<boolean>(true);
     const [state, setState] = useState<Array<any>>();
     const { parentInitialized, parentState, setParentState } = useParentStateContext();
 
     useEffect(() => {
         if (state) {
             let newState = parentState;
-            if (index !== false) {
-                newState[index] = state;
+            if (parentKey !== false) {
+                newState[parentKey] = state;
             } else {
                 newState = state;
             }
@@ -27,8 +29,20 @@ const Repeater = ({ addRow, children, initialState, index = false, label }: Prop
     }, [state]);
 
     useEffect(() => {
+        if (limit && state) {
+            setCanAddRow(state.length < limit);
+        } else if (state) {
+            setCanAddRow(true);
+        }
+    }, [limit]);
+
+    useEffect(() => {
         if (parentInitialized) {
             setState(initialState);
+
+            if (limit) {
+                setCanAddRow(initialState.length < limit);
+            }
         }
     }, [initialState]);
 
@@ -48,10 +62,12 @@ const Repeater = ({ addRow, children, initialState, index = false, label }: Prop
                 {children}
 
                 <div className="button-controls">
-                    <Button
-                        label={'Add row'}
-                        onClick={handleAddRow}
-                    />
+                    {canAddRow && (
+                        <Button
+                            label={'Add row'}
+                            onClick={handleAddRow}
+                        />
+                    )}
                 </div>
             </fieldset>
         </ParentStateContext.Provider>
