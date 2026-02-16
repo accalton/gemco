@@ -1,11 +1,17 @@
+$base-colour: #82003c;
+$form-input: #e7c9d7;
+$base-white: #eeeeee;
+
+body {
+    background: linear-gradient(+135deg, $base-colour, $base-white);
+}
+
 form {
-    background: #eeeeee;
-    border: 1px solid black;
-    border-radius: 5px;
-    box-shadow: 4px 4px 10px #000000;
+    background: $base-white;
+    box-shadow: 5px 5px 10px #000000;
     max-width: 800px;
     margin: 25px auto;
-    padding: 0 10px;
+    padding: 25px;
 
     .button-controls {
         flex-grow: 1;
@@ -14,14 +20,14 @@ form {
     }
 
     .repeater {
-        button {
-            cursor: pointer;
-            margin-top: 10px;
+        fieldset {
+            border: none;
+            padding: 10px;
         }
     }
 
     .required-input {
-        color: #ff0000;
+        color: $base-colour;
     }
 
     button, input[type='submit'] {
@@ -29,7 +35,9 @@ form {
         border: 1px solid #dddddd;
         border-radius: 5px;
         box-shadow: 2px 2px 2px #555555;
+        cursor: pointer;
         margin-left: 5px;
+        min-width: 100px;
         padding: 5px;
 
         &:hover {
@@ -38,9 +46,7 @@ form {
     }
 
     div.form-input {
-        border: 1px solid #dddddd;
-        border-radius: 5px;
-        box-shadow: 2px 2px 2px #555555;
+        box-shadow: -2px 2px 5px #555555;
         box-sizing: border-box;
         flex: 1;
         padding: 5px;
@@ -54,8 +60,6 @@ form {
         }
 
         input, select {
-            border-bottom: 1px solid #000000;
-            border-radius: 5px;
             outline: 1px solid #dddddd;
             margin: 5px 0;
             padding-left: 5px;
@@ -64,21 +68,20 @@ form {
     }
 
     fieldset {
-        background: #ffffff;
-        border: 1px solid #000000;
-        border-radius: 5px;
+        background: white;
+        border-bottom: 1px solid black;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 25px;
-        padding: 10px;
+        padding: 25px 10px;
     }
 
     h2 {
         flex-shrink: 0;
         flex-basis: 100%;
-        font-size: 1.3em;
-        margin: 10px auto;
+        font-size: 1.8em;
+        font-weight: 400;
+        margin: 0 auto;
     }
 
     input[type='submit'] {
