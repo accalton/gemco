@@ -33,6 +33,6 @@ class Address extends Model
      */
     public function members(): HasMany
     {
-        return $this->hasMany(Members::class);
+        return $this->hasMany(Member::class);
     }
 }
