@@ -20,6 +20,7 @@ class MemberMembership extends Model
         'membership_id',
         'order',
         'type',
+        'relationship',
     ];
 
     protected $table = 'member_membership';

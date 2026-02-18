@@ -2,15 +2,18 @@
 
 namespace App\Filament\Resources\Memberships\Schemas;
 
+use App\Models\Address;
 use App\Models\MemberMembership;
 use App\Models\Membership;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,9 +26,21 @@ class MembershipForm
                 Flex::make([
                     Section::make()
                         ->schema([
+                            Select::make('member')
+                                ->relationship(
+                                    modifyQueryUsing: function (Builder $query, Membership $record) {
+                                        return $query
+                                            ->whereDoesntHave('membership')
+                                            ->whereDoesntHave('member_memberships')
+                                            ->orWhereRelation('membership', 'id', $record->id ?? null);
+                                    },
+                                    name: 'member',
+                                    titleAttribute: 'name'
+                                ),
                             Repeater::make('members')
+                                ->hidden(fn (Get $get): bool => $get('type') !== Membership::TYPE_FAMILY)
                                 ->defaultItems(0)
-                                ->label('Members')
+                                ->label('Additional Members')
                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MemberMembership::TYPE_MEMBER]))
                                 ->relationship(
                                     modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'member'),
@@ -55,7 +70,7 @@ class MembershipForm
                                     modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'contact'),
                                     name: 'member_memberships'
                                 )
-                                ->simple(
+                                ->schema([
                                     Select::make('member_id')
                                         ->createOptionForm(self::memberForm())
                                         ->editOptionForm(self::memberForm())
@@ -69,8 +84,25 @@ class MembershipForm
                                         )
                                         ->required()
                                         ->searchable(),
-                                )
-                                ->orderColumn('order')
+                                    TextInput::make('relationship'),
+                                ])
+                                ->orderColumn('order'),
+                            Fieldset::make('Address')->relationship('address')
+                                ->columns(6)
+                                ->schema([
+                                    TextInput::make('line1')
+                                        ->columnSpan(3),
+                                    TextInput::make('line2')
+                                        ->columnSpan(3),
+                                    TextInput::make('suburb')
+                                        ->columnSpan(2),
+                                    TextInput::make('postcode')
+                                        ->columnSpan(2)
+                                        ->length(4),
+                                    Select::make('state')
+                                        ->columnSpan(2)
+                                        ->options(Address::STATES)
+                                ])
                         ])->columnSpanFull(),
                     Section::make()
                         ->schema([
@@ -78,6 +110,7 @@ class MembershipForm
                                 ->disabled()
                                 ->readOnly(),
                             Select::make('type')
+                                ->live()
                                 ->options(Membership::TYPES)
                                 ->required(),
                             Select::make('status')

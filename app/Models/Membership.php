@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -25,13 +26,11 @@ class Membership extends Model
     ];
 
     public const string TYPE_ADULT = 'adult';
-    public const string TYPE_CONSCESSION = 'conscession';
     public const string TYPE_FAMILY = 'family';
     public const string TYPE_YOUTH = 'youth';
 
     public const array TYPES = [
         self::TYPE_ADULT       => 'Adult',
-        self::TYPE_CONSCESSION => 'Conscession',
         self::TYPE_FAMILY      => 'Family',
         self::TYPE_YOUTH       => 'Youth',
     ];
@@ -43,15 +42,31 @@ class Membership extends Model
     ];
 
     /**
+     * @return BelongsTo
+     */
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function contacts(): BelongsToMany
     {
         return $this->belongsToMany(Member::class)
-            ->as('membershipMember')
+            ->as('memberMembership')
             ->wherePivot('type', 'contact')
-            ->withPivot('type')
+            ->withPivot('relationship', 'type')
             ->orderByPivot('order');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
     }
 
     /**
@@ -60,9 +75,9 @@ class Membership extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(Member::class)
-            ->as('membershipMember')
+            ->as('memberMembership')
             ->wherePivot('type', 'member')
-            ->withPivot('type')
+            ->withPivot('relationship', 'type')
             ->orderByPivot('order');
     }
 

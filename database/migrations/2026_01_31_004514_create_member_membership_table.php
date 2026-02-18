@@ -22,6 +22,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('type');
+            $table->string('relationship')->nullable();
             $table->unsignedInteger('order')->default(1);
             $table->timestamps();
         });

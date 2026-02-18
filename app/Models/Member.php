@@ -39,11 +39,19 @@ class Member extends Model
     }
 
     /**
+     * @return HasOne
+     */
+    public function membership(): HasOne
+    {
+        return $this->hasOne(Membership::class);
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function memberships(): BelongsToMany
     {
-        return $this->belongsToMany(Membership::class)->withPivot('type');
+        return $this->belongsToMany(Membership::class)->withPivot('relationship', 'type');
     }
 
     /**

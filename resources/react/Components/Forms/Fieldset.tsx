@@ -3,19 +3,19 @@ import { useEffect, useState } from "react";
 
 interface Props extends React.PropsWithChildren {
     label?: string
-    index?: number | false,
     initialState: any,
+    parentKey?: string | number | false,
 }
 
-const Fieldset = ({ children, label, index = false, initialState }: Props) => {
+const Fieldset = ({ children, label, initialState, parentKey = false }: Props) => {
     const [state, setState] = useState();
     const { parentInitialized, parentState, setParentState } = useParentStateContext();
 
     useEffect(() => {
         if (state) {
             let newState = parentState;
-            if (index !== false) {
-                newState[index] = state;
+            if (parentKey !== false) {
+                newState[parentKey] = state;
             } else {
                 newState = state;
             }

@@ -41,6 +41,7 @@ class MemberForm
                                 TextInput::make('phone')
                                     ->tel(),
                             ])->columnSpanFull(),
+                            /*
                             Select::make('address')
                                 ->columnSpanFull()
                                 ->createOptionForm([
@@ -65,6 +66,7 @@ class MemberForm
                                 ])
                                 ->relationship(name: 'address', titleAttribute: 'full_address')
                                 ->searchable(),
+                            */
                             Fieldset::make('Identifications')
                                 ->schema([
                                     Repeater::make('identifications')

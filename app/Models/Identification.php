@@ -11,8 +11,10 @@ class Identification extends Model
     use HasFactory;
 
     public const TYPES = [
+        'first-aid' => 'First Aid',
+        'rsa' => 'RSA',
         'working-with-children' => 'Working With Children',
-        'victorian-institute-of-teaching' => 'Victorian Institute of Teaching'
+        'victorian-institute-of-teaching' => 'Victorian Institute of Teaching',
     ];
 
     protected $fillable = [

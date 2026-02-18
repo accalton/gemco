@@ -71,9 +71,14 @@ form {
         background: white;
         border-bottom: 1px solid black;
         display: flex;
+        flex-basis: 100%;
         flex-wrap: wrap;
         gap: 10px;
         padding: 25px 10px;
+
+        .full-width {
+            flex-basis: 100%;
+        }
     }
 
     h2 {

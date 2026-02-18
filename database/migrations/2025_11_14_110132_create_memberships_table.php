@@ -16,6 +16,15 @@ return new class extends Migration
             $table->string('type');
             $table->string('status');
             $table->date('expiry');
+            $table->foreignId('address_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
+            $table->foreignId('member_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->timestamps();
         });
     }
