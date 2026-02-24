@@ -26,9 +26,12 @@ class MembershipForm
                 Flex::make([
                     Section::make()
                         ->schema([
-                            Select::make('member')
+                            Select::make('member_id')
+                                ->createOptionForm(self::memberForm(true))
+                                ->editOptionForm(self::memberForm(true))
+                                ->preload()
                                 ->relationship(
-                                    modifyQueryUsing: function (Builder $query, Membership $record) {
+                                    modifyQueryUsing: function (Builder $query, ?Membership $record) {
                                         return $query
                                             ->whereDoesntHave('membership')
                                             ->whereDoesntHave('member_memberships')
@@ -36,7 +39,9 @@ class MembershipForm
                                     },
                                     name: 'member',
                                     titleAttribute: 'name'
-                                ),
+                                )
+                                ->required()
+                                ->searchable(),
                             Repeater::make('members')
                                 ->hidden(fn (Get $get): bool => $get('type') !== Membership::TYPE_FAMILY)
                                 ->defaultItems(0)
@@ -87,13 +92,34 @@ class MembershipForm
                                     TextInput::make('relationship'),
                                 ])
                                 ->orderColumn('order'),
-                            Fieldset::make('Address')->relationship('address')
+                            Fieldset::make('Address')
                                 ->columns(6)
+                                ->contained(false)
+                                ->relationship(
+                                    'address',
+                                    condition: function (?array $state): bool {
+                                        foreach ([
+                                            'line1',
+                                            'line2',
+                                            'suburb',
+                                            'postcode',
+                                            'state'
+                                        ] as $field) {
+                                            if (filled($state[$field])) {
+                                                return true;
+                                            }
+                                        }
+
+                                        return false;
+                                    }
+                                )
                                 ->schema([
                                     TextInput::make('line1')
-                                        ->columnSpan(3),
+                                        ->columnSpan(3)
+                                        ->label('Address Line 1'),
                                     TextInput::make('line2')
-                                        ->columnSpan(3),
+                                        ->columnSpan(3)
+                                        ->label('Address Line 2'),
                                     TextInput::make('suburb')
                                         ->columnSpan(2),
                                     TextInput::make('postcode')

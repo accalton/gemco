@@ -37,6 +37,7 @@ class Membership extends Model
 
     protected $fillable = [
         'expiry',
+        'member_id',
         'status',
         'type',
     ];

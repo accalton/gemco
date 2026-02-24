@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->string('line1');
+            $table->string('line1')->nullable();
             $table->string('line2')->nullable();
-            $table->string('suburb');
-            $table->string('state');
-            $table->string('postcode');
+            $table->string('suburb')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postcode')->nullable();
             $table->string('full_address')->virtualAs('CONCAT_WS(", ", line1, line2, suburb, state, postcode)');
             $table->timestamps();
         });

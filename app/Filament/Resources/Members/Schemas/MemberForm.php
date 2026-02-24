@@ -41,32 +41,6 @@ class MemberForm
                                 TextInput::make('phone')
                                     ->tel(),
                             ])->columnSpanFull(),
-                            /*
-                            Select::make('address')
-                                ->columnSpanFull()
-                                ->createOptionForm([
-                                    TextInput::make('line1')->required(),
-                                    TextInput::make('line2'),
-                                    TextInput::make('suburb')->required(),
-                                    TextInput::make('postcode')
-                                        ->length(4)
-                                        ->required(),
-                                    Select::make('state')
-                                        ->options(Address::STATES)
-                                ])
-                                ->editOptionForm([
-                                    TextInput::make('line1')->required(),
-                                    TextInput::make('line2'),
-                                    TextInput::make('suburb')->required(),
-                                    TextInput::make('postcode')
-                                        ->length(4)
-                                        ->required(),
-                                    Select::make('state')
-                                        ->options(Address::STATES)
-                                ])
-                                ->relationship(name: 'address', titleAttribute: 'full_address')
-                                ->searchable(),
-                            */
                             Fieldset::make('Identifications')
                                 ->schema([
                                     Repeater::make('identifications')
