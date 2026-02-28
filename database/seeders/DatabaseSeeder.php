@@ -31,6 +31,12 @@ class DatabaseSeeder extends Seeder
             'password' => 'password'
         ]);
 
+        User::factory()->create([
+            'name'     => 'Matthew Greenaway',
+            'email'    => 'gemcopresident@gmail.com',
+            'password' => 'password'
+        ]);
+
         $this->seedMemberships();
     }
 
