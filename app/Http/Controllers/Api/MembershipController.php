@@ -13,10 +13,18 @@ class MembershipController extends Controller
         return response()->json($membership->load(['address', 'contacts', 'member', 'members']));
     }
 
-    public function post(Membership $membership)
+    public function save(Membership $membership)
     {
         return response()->json([
-            'message' => 'Posted!',
+            'message' => 'Saved!',
+            'data' => request()->post()
+        ]);
+    }
+
+    public function store()
+    {
+        return response()->json([
+            'message' => 'Stored!',
             'data' => request()->post()
         ]);
     }

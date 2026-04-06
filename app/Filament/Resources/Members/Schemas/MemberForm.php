@@ -8,8 +8,10 @@ use App\Models\Member;
 use App\Models\MemberMembership;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Fieldset;
@@ -34,7 +36,9 @@ class MemberForm
                                     ->unique()
                                     ->required(),
                                 DatePicker::make('date_of_birth')
-                                    ->required(fn (?Member $record):bool => $record ? $record->memberships()->wherePivot('type', 'member')->count() : false),
+                                    ->required(fn (?Member $record):bool =>
+                                        $record ? $record->memberships()->wherePivot('type', 'member')->count() : false
+                                    ),
                                 TextInput::make('email')
                                     ->label('Email address')
                                     ->email(),
@@ -59,6 +63,13 @@ class MemberForm
                                             TextInput::make('number')
                                                 ->columnSpanFull()
                                                 ->required(),
+                                            Textarea::make('details')
+                                                ->columnSpanFull()
+                                                ->helperText(fn (Field $component, ?string $state): string =>
+                                                    'Characters left: ' . ($component->getMaxLength() - strlen($state))
+                                                )
+                                                ->maxLength(2000)
+                                                ->live()
                                         ])
                                 ])->columnSpanFull()
                         ]),

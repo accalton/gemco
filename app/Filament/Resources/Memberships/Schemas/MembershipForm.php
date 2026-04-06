@@ -6,8 +6,10 @@ use App\Models\Address;
 use App\Models\MemberMembership;
 use App\Models\Membership;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
@@ -121,10 +123,12 @@ class MembershipForm
                                         ->columnSpan(3)
                                         ->label('Address Line 2'),
                                     TextInput::make('suburb')
-                                        ->columnSpan(2),
+                                        ->columnSpan(2)
+                                        ->required(),
                                     TextInput::make('postcode')
                                         ->columnSpan(2)
-                                        ->length(4),
+                                        ->length(4)
+                                        ->required(),
                                     Select::make('state')
                                         ->columnSpan(2)
                                         ->options(Address::STATES)
@@ -140,8 +144,16 @@ class MembershipForm
                                 ->options(Membership::TYPES)
                                 ->required(),
                             Select::make('status')
+                                ->live()
                                 ->options(Membership::STATUSES)
                                 ->required(),
+                            Textarea::make('cancellation_reason')
+                                ->helperText(fn (Field $component, ?string $state): string =>
+                                    'Characters left: ' . ($component->getMaxLength() - strlen($state))
+                                )
+                                ->hidden(fn (Get $get): bool => $get('status') != 'cancelled')
+                                ->live()
+                                ->maxLength(500),
                             DatePicker::make('expiry')
                                 ->required()
                         ])->grow(false)

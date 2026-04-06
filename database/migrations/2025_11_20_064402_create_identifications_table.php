@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('number')->nullable();
             $table->string('expiry')->nullable();
             $table->string('upload')->nullable();
+            $table->string('details', 2000)->nullable();
             $table->timestamps();
         });
     }

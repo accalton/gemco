@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('status');
             $table->date('expiry');
+            $table->string('cancellation_reason', 500)->nullable();
             $table->foreignId('address_id')
                 ->nullable()
                 ->constrained()

@@ -10,14 +10,22 @@ class Identification extends Model
 {
     use HasFactory;
 
+    public const TYPE_FIRST_AID = 'first-aid';
+    public const TYPE_RSA = 'rsa';
+    public const TYPE_WORKING_WITH_CHILDREN = 'working-with-children';
+    public const TYPE_VICTORIAN_INSTITUTE_OF_TEACHING = 'victorian-institute-of-teaching';
+    public const TYPE_OTHER = 'other';
+
     public const TYPES = [
-        'first-aid' => 'First Aid',
-        'rsa' => 'RSA',
-        'working-with-children' => 'Working With Children',
-        'victorian-institute-of-teaching' => 'Victorian Institute of Teaching',
+        self::TYPE_FIRST_AID => 'First Aid',
+        self::TYPE_RSA => 'RSA',
+        self::TYPE_WORKING_WITH_CHILDREN => 'Working With Children',
+        self::TYPE_VICTORIAN_INSTITUTE_OF_TEACHING => 'Victorian Institute of Teaching',
+        self::TYPE_OTHER => 'Other'
     ];
 
     protected $fillable = [
+        'details',
         'expiry',
         'issued',
         'number',
