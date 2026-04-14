@@ -31,6 +31,14 @@ class Member extends Model
     }
 
     /**
+     * @return BelongsTo
+     */
+    public function guardian(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
+    }
+
+    /**
      * @return HasMany
      */
     public function identifications(): HasMany

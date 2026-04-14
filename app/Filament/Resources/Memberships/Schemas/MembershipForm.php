@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Memberships\Schemas;
 use App\Models\Address;
 use App\Models\MemberMembership;
 use App\Models\Membership;
+use DateTime;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
@@ -29,8 +30,8 @@ class MembershipForm
                     Section::make()
                         ->schema([
                             Select::make('member_id')
-                                ->createOptionForm(self::memberForm(true))
-                                ->editOptionForm(self::memberForm(true))
+                                ->createOptionForm(self::memberForm())
+                                ->editOptionForm(self::memberForm())
                                 ->preload()
                                 ->relationship(
                                     modifyQueryUsing: function (Builder $query, ?Membership $record) {
@@ -55,8 +56,8 @@ class MembershipForm
                                 )
                                 ->simple(
                                     Select::make('member_id')
-                                        ->createOptionForm(self::memberForm(true))
-                                        ->editOptionForm(self::memberForm(true))
+                                        ->createOptionForm(self::memberForm())
+                                        ->editOptionForm(self::memberForm())
                                         ->preload()
                                         ->relationship(
                                             modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
@@ -79,8 +80,8 @@ class MembershipForm
                                 )
                                 ->schema([
                                     Select::make('member_id')
-                                        ->createOptionForm(self::memberForm())
-                                        ->editOptionForm(self::memberForm())
+                                        ->createOptionForm(self::contactForm())
+                                        ->editOptionForm(self::contactForm())
                                         ->preload()
                                         ->relationship(
                                             modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
@@ -91,109 +92,166 @@ class MembershipForm
                                         )
                                         ->required()
                                         ->searchable(),
-                                    TextInput::make('relationship'),
+                                    TextInput::make('relationship')
+                                        ->required(),
                                 ])
                                 ->orderColumn('order'),
-                            Fieldset::make('Address')
-                                ->columns(6)
-                                ->contained(false)
-                                ->relationship(
-                                    'address',
-                                    condition: function (?array $state): bool {
-                                        foreach ([
-                                            'line1',
-                                            'line2',
-                                            'suburb',
-                                            'postcode',
-                                            'state'
-                                        ] as $field) {
-                                            if (filled($state[$field])) {
-                                                return true;
-                                            }
-                                        }
-
-                                        return false;
-                                    }
-                                )
-                                ->schema([
-                                    TextInput::make('line1')
-                                        ->columnSpan(3)
-                                        ->label('Address Line 1'),
-                                    TextInput::make('line2')
-                                        ->columnSpan(3)
-                                        ->label('Address Line 2'),
-                                    TextInput::make('suburb')
-                                        ->columnSpan(2)
-                                        ->required(),
-                                    TextInput::make('postcode')
-                                        ->columnSpan(2)
-                                        ->length(4)
-                                        ->required(),
-                                    Select::make('state')
-                                        ->columnSpan(2)
-                                        ->options(Address::STATES)
-                                ])
+                            self::addressForm(),
                         ])->columnSpanFull(),
                     Section::make()
-                        ->schema([
-                            TextInput::make('id')
-                                ->disabled()
-                                ->readOnly(),
-                            Select::make('type')
-                                ->live()
-                                ->options(Membership::TYPES)
-                                ->required(),
-                            Select::make('status')
-                                ->live()
-                                ->options(Membership::STATUSES)
-                                ->required(),
-                            Textarea::make('cancellation_reason')
-                                ->helperText(fn (Field $component, ?string $state): string =>
-                                    'Characters left: ' . ($component->getMaxLength() - strlen($state))
-                                )
-                                ->hidden(fn (Get $get): bool => $get('status') != 'cancelled')
-                                ->live()
-                                ->maxLength(500),
-                            DatePicker::make('expiry')
-                                ->required()
-                        ])->grow(false)
+                        ->schema(self::sidebarForm())->grow(false)
                 ])->from('md')->columnSpanFull()
             ]);
     }
 
-    /**
-     * @param bool $dobRequired
-     *
-     * @return array
-     */
-    private static function memberForm(bool $dobRequired = false): array
+    private static function addressForm(): Fieldset
     {
-        $schema = [];
+        return Fieldset::make('Address')
+            ->columns(6)
+            ->contained(false)
+            ->relationship(
+                'address',
+                condition: function (?array $state): bool {
+                    foreach ([
+                        'line1',
+                        'line2',
+                        'suburb',
+                        'postcode',
+                        'state'
+                    ] as $field) {
+                        if (filled($state[$field])) {
+                            return true;
+                        }
+                    }
 
-        $schema[] = TextInput::make('name')
-            ->columnSpan(3)
-            ->required();
-        
-        if ($dobRequired) {
-            $schema[] = DatePicker::make('date_of_birth')
-                ->columnSpan(1)
-                ->required();
-        } else {
-            $schema[] = DatePicker::make('date_of_birth')
-                ->columnSpan(1);
-        }
+                    return false;
+                }
+            )
+            ->schema([
+                TextInput::make('line1')
+                    ->columnSpan(3)
+                    ->label('Address Line 1'),
+                TextInput::make('line2')
+                    ->columnSpan(3)
+                    ->label('Address Line 2'),
+                TextInput::make('suburb')
+                    ->columnSpan(2)
+                    ->required(),
+                TextInput::make('postcode')
+                    ->columnSpan(2)
+                    ->length(4)
+                    ->required(),
+                Select::make('state')
+                    ->columnSpan(2)
+                    ->options(Address::STATES)
+            ]);
+    }
 
-        $schema[] = TextInput::make('email')
-            ->columnSpan(2)
-            ->email();
-
-        $schema[] = TextInput::make('phone')
-            ->columnSpan(2);
-
+    private static function contactForm(): array
+    {
         return [
             Grid::make()
                 ->columns(4)
-                ->schema($schema)
+                ->schema([
+                    TextInput::make('name')
+                        ->columnSpan(3)
+                        ->required(),
+                    DatePicker::make('date_of_birth')
+                        ->columnSpan(1),
+                    TextInput::make('email')
+                        ->columnSpan(2)
+                        ->email(),
+                    TextInput::make('phone')
+                        ->columnSpan(2)
+                        ->required()
+                        ->tel()
+                ])
+        ];
+    }
+
+    private static function hideGuardianForm(Get $get): bool
+    {
+        if ($dateOfBirth = DateTime::createFromFormat('Y-m-d', $get('date_of_birth'))) {
+            $currentDate = new DateTime();
+
+            $diff = $currentDate->diff($dateOfBirth);
+
+            return $diff->y >= 18;
+        }
+
+        return true;
+    }
+
+    private static function memberForm(): array
+    {
+        return [
+            Grid::make()
+                ->columns(4)
+                ->schema([
+                    TextInput::make('name')
+                        ->columnSpan(3)
+                        ->required(),
+                    DatePicker::make('date_of_birth')
+                        ->columnSpan(1)
+                        ->live()
+                        ->required(),
+                    TextInput::make('email')
+                        ->columnSpan(2)
+                        ->email()
+                        ->required(),
+                    TextInput::make('phone')
+                        ->columnSpan(2)
+                        ->required()
+                        ->tel(),
+                    Fieldset::make()
+                        ->columns(4)
+                        ->columnSpanFull()
+                        ->hidden(fn (Get $get): bool => self::hideGuardianForm($get))
+                        ->label('Parent/Guardian')
+                        ->relationship('guardian')
+                        ->schema([
+                            TextInput::make('name')
+                                ->columnSpan(3)
+                                ->required(),
+                            DatePicker::make('date_of_birth')
+                                ->columnSpan(1)
+                                ->required(),
+                            TextInput::make('email')
+                                ->columnSpan(2)
+                                ->email()
+                                ->required(),
+                            TextInput::make('phone')
+                                ->columnSpan(2)
+                                ->required()
+                                ->tel(),
+                        ])
+                ])
+        ];
+    }
+
+    private static function sidebarForm(): array
+    {
+        return [
+            TextInput::make('id')
+                ->disabled()
+                ->readOnly(),
+            Select::make('type')
+                ->live()
+                ->options(Membership::TYPES)
+                ->required(),
+            Select::make('status')
+                ->live()
+                ->options(Membership::STATUSES)
+                ->required(),
+            Textarea::make('cancellation_reason')
+                ->helperText(fn (Field $component, ?string $state): string =>
+                    'Characters left: ' . ($component->getMaxLength() - strlen($state))
+                )
+                ->hidden(fn (Get $get): bool => $get('status') != 'cancelled')
+                ->live()
+                ->maxLength(500),
+            DatePicker::make('expiry')
+                ->required()
         ];
     }
 }
