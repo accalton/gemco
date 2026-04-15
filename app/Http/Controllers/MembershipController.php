@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MembershipFormRequest;
 use App\Models\Address;
 use App\Models\Membership;
 use Illuminate\Http\Request;
@@ -10,17 +11,7 @@ class MembershipController extends Controller
 {
     public function create()
     {
-        return view('memberships.form', [
-            'postApi' => route('api.memberships.store')
-        ]);
-    }
-
-    public function edit(Membership $membership)
-    {
-        return view('memberships.form', [
-            'fetchApi' => route('api.memberships.get', ['membership' => $membership]),
-            'postApi'  => route('api.memberships.save', ['membership' => $membership])
-        ]);
+        return view('memberships.form');
     }
 
     public function index()
@@ -28,5 +19,17 @@ class MembershipController extends Controller
         $memberships = Membership::all();
 
         return view('memberships.index', compact('memberships'));
+    }
+
+    public function store(MembershipFormRequest $request)
+    {
+        $validated = $request->validated();
+
+        var_dump($validated);
+
+        var_dump($_POST);
+
+        exit;
+        return view('memberships.index');
     }
 }

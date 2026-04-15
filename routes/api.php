@@ -8,12 +8,15 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('memberships')
-    ->middleware('auth:sanctum')
-    ->name('memberships.')
-    ->controller(MembershipController::class)
-    ->group(function () {
-        Route::get('{membership}', 'get');
-        Route::post('{membership}', 'post');
-    }
-);
+Route::name('api.')->group(function () {
+    Route::prefix('memberships')
+        ->middleware('auth:sanctum')
+        ->name('memberships.')
+        ->controller(MembershipController::class)
+        ->group(function () {
+            Route::get('{membership}', 'get')->name('get');
+            Route::post('/', 'store')->name('store');
+            Route::post('{membership}', 'save')->name('save');
+        }
+    );
+});

@@ -45,7 +45,7 @@ form {
         }
     }
 
-    div.form-input {
+    label {
         box-shadow: -2px 2px 5px #555555;
         box-sizing: border-box;
         flex: 1;
@@ -64,6 +64,10 @@ form {
             margin: 5px 0;
             padding-left: 5px;
             width: 100%;
+        }
+
+        .error, .required {
+            color: red;
         }
     }
 

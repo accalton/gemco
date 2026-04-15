@@ -26,6 +26,7 @@ Route::post('/create-token', function (Request $request) {
     ]);
 });
 
+/*
 Route::prefix('memberships')
     ->name('memberships.')
     ->controller(MembershipController::class)
@@ -36,3 +37,14 @@ Route::prefix('memberships')
         Route::get('edit/{membership}', 'edit')->name('edit');
     }
 );
+
+*/
+
+Route::prefix('memberships')->middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return view('memberships.index');
+    });
+
+    Route::get('/create', [MembershipController::class, 'create']);
+    Route::post('/create', [MembershipController::class, 'store']);
+});
