@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\MembershipController;
-use App\Models\Member;
+use App\Livewire\Memberships\Form as MembershipForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,25 +25,11 @@ Route::post('/create-token', function (Request $request) {
     ]);
 });
 
-/*
-Route::prefix('memberships')
-    ->name('memberships.')
-    ->controller(MembershipController::class)
-    ->middleware('auth')
-    ->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('create', 'create')->name('create');
-        Route::get('edit/{membership}', 'edit')->name('edit');
-    }
-);
-
-*/
-
 Route::prefix('memberships')->middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('memberships.index');
     });
 
-    Route::get('/create', [MembershipController::class, 'create']);
-    Route::post('/create', [MembershipController::class, 'store']);
+    Route::get('/create', MembershipForm::class);
+    Route::get('/edit/{membership}', MembershipForm::class);
 });
