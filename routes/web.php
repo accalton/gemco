@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Memberships\Form as MembershipForm;
+use App\Livewire\CreateMembership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +30,5 @@ Route::prefix('memberships')->middleware('auth')->group(function () {
         return view('memberships.index');
     });
 
-    Route::get('/create', MembershipForm::class);
-    Route::get('/edit/{membership}', MembershipForm::class);
+    Route::get('/create', CreateMembership::class);
 });
