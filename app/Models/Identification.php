@@ -28,6 +28,7 @@ class Identification extends Model
         'details',
         'expiry',
         'issued',
+        'member_id',
         'number',
         'type',
         'upload',

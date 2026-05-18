@@ -26,18 +26,23 @@ class Membership extends Model
     ];
 
     public const string TYPE_ADULT = 'adult';
+    public const string TYPE_ASSOCIATE = 'associate';
+    public const string TYPE_CONCESSION = 'concession';
     public const string TYPE_FAMILY = 'family';
     public const string TYPE_LIFE = 'life';
     public const string TYPE_YOUTH = 'youth';
 
     public const array TYPES = [
-        self::TYPE_ADULT  => 'Adult',
-        self::TYPE_FAMILY => 'Family',
-        self::TYPE_LIFE   => 'Life',
-        self::TYPE_YOUTH  => 'Youth',
+        self::TYPE_ADULT      => 'Adult',
+        self::TYPE_ASSOCIATE  => 'Associate',
+        self::TYPE_CONCESSION => 'Concession',
+        self::TYPE_FAMILY     => 'Family',
+        self::TYPE_LIFE       => 'Life',
+        self::TYPE_YOUTH      => 'Youth',
     ];
 
     protected $fillable = [
+        'address_id',
         'cancellation_reason',
         'expiry',
         'member_id',

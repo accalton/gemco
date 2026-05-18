@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             'password' => 'password'
         ]);
 
-        $this->seedMemberships();
+        // $this->seedMemberships();
     }
 
     /**
