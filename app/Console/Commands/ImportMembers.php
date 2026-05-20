@@ -30,7 +30,7 @@ class ImportMembers extends Command
      */
     protected $description = 'Command description';
 
-    private $today;
+    private DateTime $today;
 
     /**
      * Execute the console command.
@@ -45,8 +45,21 @@ class ImportMembers extends Command
 
         $spreadsheet = $reader->load($path);
 
-        // $this->importMembers($spreadsheet->getSheet(0));
+        $this->importMembers($spreadsheet->getSheet(0));
+        $this->importYouthMembers($spreadsheet->getSheet(3));
         $this->importIdentifications($spreadsheet->getSheet(1));
+    }
+
+    /**
+     * @param array $row
+     *
+     * @return Member
+     */
+    private function createGuardian(array $row): ?Member
+    {
+        return Member::firstOrCreate([
+            'name' => $row[6]
+        ]);
     }
 
     /**
@@ -57,7 +70,7 @@ class ImportMembers extends Command
     private function createMember(array $row): ?Member
     {
         $name = implode(' ', [
-            $row[1], $row[0]
+            trim($row[1]), trim($row[0])
         ]);
 
         if (!trim($name)) {
@@ -67,10 +80,7 @@ class ImportMembers extends Command
         $dateOfBirth = DateTime::createFromFormat('d/m/Y H:i:s', $row[4] . '00:00:00');
 
         $data = [
-            'name' => implode(' ', [
-                $row[1],
-                $row[0]
-            ]),
+            'name'  => $name,
             'phone' => $row[2],
             'email' => $row[5],
             'date_of_birth' => $dateOfBirth ?: null,
@@ -138,6 +148,7 @@ class ImportMembers extends Command
             'family (youth)',
             'associate youth'
         ];
+
         if (in_array($type, $youthTypes)) {
             $type = 'family';
         }
@@ -157,24 +168,28 @@ class ImportMembers extends Command
             }
 
             $name = implode(' ', [
-                $row[1], $row[0]
+                trim($row[1]), trim($row[0])
             ]);
 
-            $member = Member::where('name', $name)->get();
+            $member = Member::firstOrCreate(['name' => $name]);
+
+            $type = strcasecmp($row[4], 'Victorian Institute of Teaching') === 0 ?
+                Identification::TYPE_VICTORIAN_INSTITUTE_OF_TEACHING :
+                Identification::TYPE_WORKING_WITH_CHILDREN;
 
             if ($member->count() === 1) {
                 Identification::firstOrCreate([
                     'expiry'    => $this->getExpiry($row, 3),
                     'member_id' => $member[0]->id,
                     'number'    => $row[2],
-                    'type'      => Identification::TYPE_WORKING_WITH_CHILDREN,
+                    'type'      => $type,
                 ]);
             }
         }
     }
 
     /**
-     * @param Worksheet $worksheet
+     * @param Worksheet $sheet
      *
      * @return void
      */
@@ -206,6 +221,47 @@ class ImportMembers extends Command
             $membership = $this->createMembership($row, $member, $address);
 
             $previousMembership = $membership;
+        }
+    }
+
+    /**
+     * @param Worksheet $sheet
+     *
+     * @return void
+     */
+    private function importYouthMembers(Worksheet $sheet): void
+    {
+        $index = 0;
+        foreach ($sheet->toArray() as $row) {
+            if ($index++ === 0) {
+                continue;
+            }
+            $youthRow = [
+                0 => $row[0], // Surname
+                1 => $row[1], // First name
+                2 => $row[2], // Phone
+                4 => $row[8], // Date of birth
+                5 => $row[4]  // Email
+            ];
+
+            if (!$member = $this->createMember($youthRow)) {
+                continue;
+            }
+
+            $guardian = $this->createGuardian($row);
+            $member->guardian()->associate($guardian)->save();
+
+            if ($member->membership) {
+                continue;
+            }
+
+            $address = $this->verifyAddress($row);
+            $this->createMembership([
+                6 => Membership::TYPE_YOUTH,
+                8 => null,
+            ], $member, $address);
+
+            exit;
         }
     }
 
@@ -246,7 +302,7 @@ class ImportMembers extends Command
     }
 
     /**
-     * @param string $address
+     * @param array $row
      *
      * @return Address
      */
