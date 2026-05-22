@@ -52,6 +52,7 @@ class ImportMembers extends Command
         $this->importMembers($spreadsheet->getSheet(0));
         $this->importYouthMembers($spreadsheet->getSheet(3));
         $this->importIdentifications($spreadsheet->getSheet(1));
+        $this->importCommiteeMembers($spreadsheet->getSheet(4));
     }
 
     /**
@@ -105,12 +106,12 @@ class ImportMembers extends Command
             return null;
         }
 
-        $dateOfBirth = DateTime::createFromFormat('d/m/Y H:i:s', $row[4] . '00:00:00');
+        $dateOfBirth = DateTime::createFromFormat('d/m/Y H:i:s', trim($row[4]) . '00:00:00');
 
         $data = [
             'name'  => $name,
-            'phone' => $row[2],
-            'email' => $row[5],
+            'phone' => str_replace(' ', '', $row[2]),
+            'email' => trim($row[5]),
             'date_of_birth' => $dateOfBirth ?: null,
         ];
 
@@ -249,6 +250,26 @@ class ImportMembers extends Command
             $membership = $this->createMembership($row, $member, $address);
 
             $previousMembership = $membership;
+        }
+    }
+
+    private function importCommiteeMembers(Worksheet $sheet): void
+    {
+        $index = 0;
+        foreach ($sheet->toArray() as $row) {
+            if ($index++ === 0) {
+                continue;
+            }
+
+            $member = $this->createMember([
+                0 => $row[0],
+                1 => $row[1],
+                2 => $row[2],
+                4 => $row[5],
+                5 => $row[4]
+            ]);
+
+            $this->addGroupToMember($member, 'Commitee');
         }
     }
 
