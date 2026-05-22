@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\MemberMembership;
 use App\Models\Membership;
 use DateTime;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
@@ -69,6 +70,18 @@ class MembershipForm
                                         ->required()
                                         ->searchable(),
                                 )
+                                ->extraItemActions([
+                                    Action::make('View Member')
+                                        ->color('warning')
+                                        ->icon('heroicon-m-eye')
+                                        ->url(function (array $arguments, Repeater $component) {
+                                            $itemState = $component->getItemState($arguments['item']);
+
+                                            if ($id = ($itemState['member_id'] ?? null)) {
+                                                return route('filament.admin.resources.members.edit', ['record' => $id]);
+                                            }
+                                        })
+                                ])
                                 ->orderColumn('order'),
                             Repeater::make('contacts')
                                 ->defaultItems(0)
