@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Models\Address;
+use App\Models\Group;
 use App\Models\Identification;
 use App\Models\Member;
 use App\Models\MemberMembership;
 use App\Models\Membership;
-use Carbon\Carbon;
 use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +32,10 @@ class ImportMembers extends Command
 
     private DateTime $today;
 
+    private const GROUP_MAP = [
+        'seniors - family' => 'Seniors',
+    ];
+
     /**
      * Execute the console command.
      */
@@ -48,6 +52,30 @@ class ImportMembers extends Command
         $this->importMembers($spreadsheet->getSheet(0));
         $this->importYouthMembers($spreadsheet->getSheet(3));
         $this->importIdentifications($spreadsheet->getSheet(1));
+    }
+
+    /**
+     * @param Member $member
+     * @param string $group
+     *
+     * @return void
+     */
+    private function addGroupToMember(Member $member, ?string $group): void
+    {
+        if (!$group) {
+            return;
+        }
+
+        $check = strtolower($group);
+        if (array_key_exists($check, static::GROUP_MAP)) {
+            $group = static::GROUP_MAP[$check];
+        }
+
+        $group = Group::firstOrCreate([
+            'name' => $group
+        ]);
+
+        $member->groups()->attach($group);
     }
 
     /**
@@ -250,6 +278,7 @@ class ImportMembers extends Command
 
             $guardian = $this->createGuardian($row);
             $member->guardian()->associate($guardian)->save();
+            $this->addGroupToMember($member, $row[5]);
 
             if ($member->membership) {
                 continue;
@@ -260,8 +289,6 @@ class ImportMembers extends Command
                 6 => Membership::TYPE_YOUTH,
                 8 => null,
             ], $member, $address);
-
-            exit;
         }
     }
 

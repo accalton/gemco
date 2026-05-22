@@ -31,6 +31,14 @@ class Member extends Model
     }
 
     /**
+     * @return BelongsToMany
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    /**
      * @return BelongsTo
      */
     public function guardian(): BelongsTo

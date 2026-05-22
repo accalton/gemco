@@ -44,6 +44,10 @@ class MemberForm
                                     ->email(),
                                 TextInput::make('phone')
                                     ->tel(),
+                                Select::make('groups')
+                                    ->multiple()
+                                    ->relationship(name: 'groups', titleAttribute: 'name')
+                                    ->preload(),
                             ])->columnSpanFull(),
                             Fieldset::make('Identifications')
                                 ->schema([
