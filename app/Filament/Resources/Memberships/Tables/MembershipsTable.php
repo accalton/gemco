@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Memberships\Tables;
 
+use App\Filament\Exports\MembershipExporter;
 use App\Models\Membership;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Tables\Columns;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -49,6 +51,8 @@ class MembershipsTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                ExportAction::make()
+                    ->exporter(MembershipExporter::class),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

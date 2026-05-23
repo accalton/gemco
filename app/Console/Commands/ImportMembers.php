@@ -301,7 +301,7 @@ class ImportMembers extends Command
             $member->guardian()->associate($guardian)->save();
             $this->addGroupToMember($member, $row[5]);
 
-            if ($member->membership) {
+            if ($member->membership || $member->memberships->count()) {
                 continue;
             }
 
