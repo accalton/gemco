@@ -23,11 +23,13 @@ class MembershipsTable
                     ->sortable(),
                 Columns\TextColumn::make('type')
                     ->formatStateUsing(fn (string $state): string => Membership::TYPES[$state]),
-                Columns\TextColumn::make('member.name')
-                    ->searchable(),
                 Columns\TextColumn::make('members.name')
                     ->bulleted()
-                    ->label('Additional Members')
+                    ->label('Members')
+                    ->searchable(),
+                Columns\TextColumn::make('contacts.name')
+                    ->bulleted()
+                    ->label('Contacts')
                     ->searchable(),
                 Columns\TextColumn::make('status')
                     ->badge()

@@ -4,10 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -25,6 +24,8 @@ class User extends Authenticatable
     protected $fillable = [
         'date_of_birth',
         'email',
+        'membership_id',
+        'membership_type',
         'name',
         'password',
         'phone',
@@ -49,19 +50,11 @@ class User extends Authenticatable
     }
 
     /**
-     * @return MorphToMany
+     * @return BelongsTo
      */
-    public function memberships(): MorphToMany
+    public function membership(): BelongsTo
     {
-        return $this->morphToMany(Membership::class, 'membershipable')->withPivot('order', 'type');
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function membershipables(): HasMany
-    {
-        return $this->hasMany(Membershipable::class, 'membershipable_id')->where('membershipable_type', static::class);
+        return $this->belongsTo(Membership::class);
     }
 
     /**

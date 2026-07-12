@@ -37,8 +37,8 @@ class Identification extends Model
     /**
      * @return BelongsTo
      */
-    public function member(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Member::class);
+        return $this->belongsTo(User::class);
     }
 }

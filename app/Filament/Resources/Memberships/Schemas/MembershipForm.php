@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\Memberships\Schemas;
 
 use App\Models\Address;
-use App\Models\MemberMembership;
+use App\Models\Identification;
 use App\Models\Membership;
-use DateTime;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -17,9 +16,10 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Builder;
 
 class MembershipForm
 {
@@ -28,92 +28,28 @@ class MembershipForm
         return $schema
             ->components([
                 Flex::make([
-                    Section::make()
-                        ->schema([
-                            Select::make('member_id')
-                                ->createOptionForm(self::memberForm())
-                                ->editOptionForm(self::memberForm())
-                                ->preload()
-                                ->relationship(
-                                    modifyQueryUsing: function (Builder $query, ?Membership $record) {
-                                        return $query
-                                            ->whereDoesntHave('membership')
-                                            ->whereDoesntHave('member_memberships')
-                                            ->orWhereRelation('membership', 'id', $record->id ?? null);
-                                    },
-                                    name: 'member',
-                                    titleAttribute: 'name'
-                                )
-                                ->required()
-                                ->searchable(),
-                            Repeater::make('members')
-                                ->hidden(fn (Get $get): bool => $get('type') !== Membership::TYPE_FAMILY)
-                                ->defaultItems(0)
-                                ->label('Additional Members')
-                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MemberMembership::TYPE_MEMBER]))
-                                ->relationship(
-                                    modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'member'),
-                                    name: 'member_memberships'
-                                )
-                                ->simple(
-                                    Select::make('member_id')
-                                        ->createOptionForm(self::memberForm())
-                                        ->editOptionForm(self::memberForm())
-                                        ->preload()
-                                        ->relationship(
-                                            modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
-                                                ->whereDoesntHave('member_memberships')
-                                                ->orWhereRelation('member_memberships', 'id', $record->id ?? null),
-                                            name: 'member',
-                                            titleAttribute: 'name'
-                                        )
-                                        ->required()
-                                        ->searchable(),
-                                )
-                                ->extraItemActions([
-                                    Action::make('View Member')
-                                        ->color('warning')
-                                        ->icon('heroicon-m-eye')
-                                        ->url(function (array $arguments, Repeater $component) {
-                                            $itemState = $component->getItemState($arguments['item']);
-
-                                            if ($id = ($itemState['member_id'] ?? null)) {
-                                                return route('filament.admin.resources.members.edit', ['record' => $id]);
-                                            }
-                                        })
-                                ])
-                                ->orderColumn('order'),
-                            Repeater::make('contacts')
-                                ->defaultItems(0)
-                                ->label('Contacts')
-                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MemberMembership::TYPE_CONTACT]))
-                                ->relationship(
-                                    modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'contact'),
-                                    name: 'member_memberships'
-                                )
+                    Tabs::make('Tabs')
+                        ->tabs([
+                            Tab::make('Membership Details')
                                 ->schema([
-                                    Select::make('member_id')
-                                        ->createOptionForm(self::contactForm())
-                                        ->editOptionForm(self::contactForm())
-                                        ->preload()
-                                        ->relationship(
-                                            modifyQueryUsing: fn (Builder $query, ?MemberMembership $record): Builder => $query
-                                                ->whereDoesntHave('member_memberships')
-                                                ->orWhereRelation('member_memberships', 'id', $record->id ?? null),
-                                            name: 'member',
-                                            titleAttribute: 'name'
-                                        )
-                                        ->required()
-                                        ->searchable(),
-                                    TextInput::make('relationship')
+                                    Select::make('type')
+                                        ->live()
+                                        ->options(Membership::TYPES)
                                         ->required(),
+                                    self::addressForm()
+                                ]),
+                            Tab::make('Member Details')
+                                ->schema([
+                                    self::memberForm(),
+                                ]),
+                            Tab::make('Contact Details')
+                                ->schema([
+                                    self::contactForm(),
                                 ])
-                                ->orderColumn('order'),
-                            self::addressForm(),
-                        ])->columnSpanFull(),
+                        ]),
                     Section::make()
                         ->schema(self::sidebarForm())->grow(false)
-                ])->from('md')->columnSpanFull()
+                ])->from('md')->columnSpanFull(),
             ]);
     }
 
@@ -160,47 +96,71 @@ class MembershipForm
             ]);
     }
 
-    private static function contactForm(): array
+    private static function contactForm(): Repeater
+    {
+        return Repeater::make('contacts')
+            ->collapsible()
+            ->defaultItems(0)
+            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+            ->minItems(fn (Get $get): ?int => $get('type') === 'youth' ? 1 : null)
+            ->relationship(name: 'contacts')
+            ->schema(self::userForm('contacts'));
+    }
+
+    private static function identificationForm()
+    {
+        return Fieldset::make('Identifications')
+            ->schema([
+                Repeater::make('identifications')
+                    ->collapsible()
+                    ->columns(3)
+                    ->columnSpanFull()
+                    ->defaultItems(0)
+                    ->hiddenLabel()
+                    ->itemLabel(fn (array $state): ?string => Identification::TYPES[$state['type']] ?? null)
+                    ->relationship(name: 'identifications')
+                    ->schema([
+                        Select::make('type')
+                            ->columnSpan(2)
+                            ->options(Identification::TYPES)
+                            ->required(),
+                        DatePicker::make('expiry')
+                            ->required(),
+                        TextInput::make('number')
+                            ->columnSpanFull()
+                            ->required(),
+                        Textarea::make('details')
+                            ->columnSpanFull()
+                            ->helperText(fn (Field $component, ?string $state): string =>
+                                'Characters left: ' . ($component->getMaxLength() - strlen($state))
+                            )
+                            ->maxLength(2000)
+                            ->live()
+                    ])
+            ])->columnSpanFull();
+    }
+
+    private static function memberForm(): Repeater
+    {
+        return Repeater::make('members')
+            ->collapsible()
+            ->defaultItems(1)
+            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+            ->maxItems(fn (Get $get): ?int => $get('type') !== 'family' ? 1 : null)
+            ->minItems(1)
+            ->relationship(name: 'members')
+            ->schema(self::userForm('members'));
+    }
+
+    private static function userForm(string $type): array
     {
         return [
             Grid::make()
                 ->columns(4)
                 ->schema([
-                    TextInput::make('name')
-                        ->columnSpan(3)
-                        ->required(),
-                    DatePicker::make('date_of_birth')
-                        ->columnSpan(1),
-                    TextInput::make('email')
-                        ->columnSpan(2)
-                        ->email(),
-                    TextInput::make('phone')
-                        ->columnSpan(2)
-                        ->required()
-                        ->tel()
-                ])
-        ];
-    }
-
-    private static function hideGuardianForm(Get $get): bool
-    {
-        if ($dateOfBirth = DateTime::createFromFormat('Y-m-d', $get('date_of_birth'))) {
-            $currentDate = new DateTime();
-
-            $diff = $currentDate->diff($dateOfBirth);
-
-            return $diff->y >= 18;
-        }
-
-        return true;
-    }
-
-    private static function memberForm(): array
-    {
-        return [
-            Grid::make()
-                ->columns(4)
-                ->schema([
+                    Hidden::make('membership_type')
+                        ->default($type)
+                        ->dehydrateStateUsing(fn (): string => $type),
                     TextInput::make('name')
                         ->columnSpan(3)
                         ->required(),
@@ -211,33 +171,13 @@ class MembershipForm
                     TextInput::make('email')
                         ->columnSpan(2)
                         ->email()
-                        ->required(),
+                        ->required()
+                        ->unique(),
                     TextInput::make('phone')
                         ->columnSpan(2)
                         ->required()
                         ->tel(),
-                    Fieldset::make()
-                        ->columns(4)
-                        ->columnSpanFull()
-                        ->hidden(fn (Get $get): bool => self::hideGuardianForm($get))
-                        ->label('Parent/Guardian')
-                        ->relationship('guardian')
-                        ->schema([
-                            TextInput::make('name')
-                                ->columnSpan(3)
-                                ->required(),
-                            DatePicker::make('date_of_birth')
-                                ->columnSpan(1)
-                                ->required(),
-                            TextInput::make('email')
-                                ->columnSpan(2)
-                                ->email()
-                                ->required(),
-                            TextInput::make('phone')
-                                ->columnSpan(2)
-                                ->required()
-                                ->tel(),
-                        ])
+                    self::identificationForm(),
                 ])
         ];
     }
@@ -248,10 +188,6 @@ class MembershipForm
             TextInput::make('id')
                 ->disabled()
                 ->readOnly(),
-            Select::make('type')
-                ->live()
-                ->options(Membership::TYPES)
-                ->required(),
             Select::make('status')
                 ->live()
                 ->options(Membership::STATUSES)
