@@ -168,11 +168,10 @@ class MembershipForm
                         ->columnSpan(1)
                         ->live()
                         ->required(),
-                    TextInput::make('email')
+                    TextInput::make('contact_email')
                         ->columnSpan(2)
                         ->email()
-                        ->required()
-                        ->unique(),
+                        ->required(),
                     TextInput::make('phone')
                         ->columnSpan(2)
                         ->required()
