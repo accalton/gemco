@@ -34,13 +34,21 @@ class DatabaseSeeder extends Seeder
             'password' => 'password'
         ]);
 
+        User::factory()->create([
+            'name'     => 'Admin',
+            'email'    => 'admin@gemcoplayers.org',
+            'password' => 'password',
+        ]);
+
         $groups = [
             'Lifetime',
             'Youth',
         ];
 
         foreach ($groups as $group) {
-            Group::factory()->create($group);
+            Group::factory()->create([
+                'name' => $group
+            ]);
         }
     }
 }
