@@ -176,6 +176,11 @@ class MembershipForm
                         ->columnSpan(2)
                         ->required()
                         ->tel(),
+                    Select::make('groups')
+                        ->columnSpanFull()
+                        ->multiple()
+                        ->preload()
+                        ->relationship(name: 'groups', titleAttribute: 'name'),
                     self::identificationForm(),
                 ])
         ];

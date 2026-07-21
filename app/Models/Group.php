@@ -14,8 +14,8 @@ class Group extends Model
     /**
      * @return BelongsToMany
      */
-    public function members(): BelongsToMany
+    public function users(): BelongsToMany
     {
-        return $this->belongsToMany(Member::class);
+        return $this->belongsToMany(User::class);
     }
 }
