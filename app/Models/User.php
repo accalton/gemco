@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -44,6 +45,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * @return Attribute
+     */
+    public function contactEmail(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ?: $this->email,
+            set: fn (?string $value) => $value !== $this->email ?: ''
+        );
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function groups(): BelongsToMany
@@ -60,11 +72,19 @@ class User extends Authenticatable
     }
 
     /**
-     * @return BelongsTo
+     * @return BelongsToMany
      */
-    public function membership(): BelongsTo
+    public function membership(): BelongsToMany
     {
-        return $this->belongsTo(Membership::class);
+        return $this->belongsToMany(Membership::class)->withPivot('relationship', 'type');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function membership_user(): HasMany
+    {
+        return $this->hasMany(MembershipUser::class);
     }
 
     /**

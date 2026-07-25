@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($groups as $group) {
             Group::factory()->create([
-                'name' => $group
+                'title' => $group
             ]);
         }
     }

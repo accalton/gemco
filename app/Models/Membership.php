@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Membership extends Model
@@ -57,16 +58,35 @@ class Membership extends Model
         return $this->belongsTo(Address::class);
     }
 
-    public function contacts(): HasMany
+    /**
+     * @return BelongsToMany
+     */
+    public function contacts(): BelongsToMany
     {
-        return $this->hasMany(User::class, 'membership_id')->where('membership_type', 'contacts');
+        return $this->belongsToMany(User::class)
+            ->as('membershipUser')
+            ->wherePivot('type', 'contact')
+            ->withPivot('relationship', 'type')
+            ->orderByPivot('order');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->as('membershipUser')
+            ->wherePivot('type', 'member')
+            ->withPivot('relationship', 'type')
+            ->orderByPivot('order');
     }
 
     /**
      * @return HasMany
      */
-    public function members(): HasMany
+    public function membership_user(): HasMany
     {
-        return $this->hasMany(User::class, 'membership_id')->where('membership_type', 'members');
+        return $this->hasMany(MembershipUser::class);
     }
 }

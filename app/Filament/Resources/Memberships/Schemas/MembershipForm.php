@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources\Memberships\Schemas;
 
+use App\Filament\Resources\Users\Schemas\UserForm;
 use App\Models\Address;
-use App\Models\Identification;
 use App\Models\Membership;
+use App\Models\MembershipUser;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class MembershipForm
 {
@@ -40,11 +40,58 @@ class MembershipForm
                                 ->tabs([
                                     Tab::make('Member Details')
                                         ->schema([
-                                            self::memberForm(),
+                                            Repeater::make('members')
+                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_MEMBER]))
+                                                ->relationship(
+                                                    modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'member'),
+                                                    name: 'membership_user'
+                                                )
+                                                ->simple(
+                                                    Select::make('user_id')
+                                                        ->createOptionForm(
+                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                        )
+                                                        ->editOptionForm(
+                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                        )
+                                                        ->preload()
+                                                        ->relationship(
+                                                            modifyQueryUsing: fn (Builder $query, ?MembershipUser $record): Builder => $query
+                                                                ->whereDoesntHave('membership_user', function ($query) {
+                                                                    $query->where('membership_user.type', 'member');
+                                                                })
+                                                                ->orWhereRelation('membership_user', 'id', $record->id ?? null),
+                                                            name: 'user',
+                                                            titleAttribute: 'name'
+                                                        )
+                                                        ->required()
+                                                        ->searchable()
+                                                )
                                         ]),
                                     Tab::make('Contact Details')
                                         ->schema([
-                                            self::contactForm(),
+                                            Repeater::make('contacts')
+                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_CONTACT]))
+                                                ->relationship(
+                                                    modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'contact'),
+                                                    name: 'membership_user'
+                                                )
+                                                ->simple(
+                                                    Select::make('user_id')
+                                                        ->createOptionForm(
+                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                        )
+                                                        ->editOptionForm(
+                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                        )
+                                                        ->preload()
+                                                        ->relationship(
+                                                            name: 'user',
+                                                            titleAttribute: 'name'
+                                                        )
+                                                        ->required()
+                                                        ->searchable()
+                                                )
                                         ]),
                                     Tab::make('Address Details')
                                         ->schema([
@@ -100,96 +147,6 @@ class MembershipForm
                     ->columnSpan(2)
                     ->options(Address::STATES)
             ]);
-    }
-
-    private static function contactForm(): Repeater
-    {
-        return Repeater::make('contacts')
-            ->collapsible()
-            ->defaultItems(0)
-            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
-            ->minItems(fn (Get $get): ?int => $get('type') === 'youth' ? 1 : null)
-            ->relationship(name: 'contacts')
-            ->schema(self::userForm('contacts'));
-    }
-
-    private static function identificationForm()
-    {
-        return Fieldset::make('Identifications')
-            ->schema([
-                Repeater::make('identifications')
-                    ->collapsible()
-                    ->columns(3)
-                    ->columnSpanFull()
-                    ->defaultItems(0)
-                    ->hiddenLabel()
-                    ->itemLabel(fn (array $state): ?string => Identification::TYPES[$state['type']] ?? null)
-                    ->relationship(name: 'identifications')
-                    ->schema([
-                        Select::make('type')
-                            ->columnSpan(2)
-                            ->options(Identification::TYPES)
-                            ->required(),
-                        DatePicker::make('expiry')
-                            ->required(),
-                        TextInput::make('number')
-                            ->columnSpanFull()
-                            ->required(),
-                        Textarea::make('details')
-                            ->columnSpanFull()
-                            ->helperText(fn (Field $component, ?string $state): string =>
-                                'Characters left: ' . ($component->getMaxLength() - strlen($state))
-                            )
-                            ->maxLength(2000)
-                            ->live()
-                    ])
-            ])->columnSpanFull();
-    }
-
-    private static function memberForm(): Repeater
-    {
-        return Repeater::make('members')
-            ->collapsible()
-            ->defaultItems(1)
-            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
-            ->maxItems(fn (Get $get): ?int => $get('type') !== 'family' ? 1 : null)
-            ->minItems(1)
-            ->relationship(name: 'members')
-            ->schema(self::userForm('members'));
-    }
-
-    private static function userForm(string $type): array
-    {
-        return [
-            Grid::make()
-                ->columns(4)
-                ->schema([
-                    Hidden::make('membership_type')
-                        ->default($type)
-                        ->dehydrateStateUsing(fn (): string => $type),
-                    TextInput::make('name')
-                        ->columnSpan(3)
-                        ->required(),
-                    DatePicker::make('date_of_birth')
-                        ->columnSpan(1)
-                        ->live()
-                        ->required(),
-                    TextInput::make('contact_email')
-                        ->columnSpan(2)
-                        ->email()
-                        ->required(),
-                    TextInput::make('phone')
-                        ->columnSpan(2)
-                        ->required()
-                        ->tel(),
-                    Select::make('groups')
-                        ->columnSpanFull()
-                        ->multiple()
-                        ->preload()
-                        ->relationship(name: 'groups', titleAttribute: 'name'),
-                    self::identificationForm(),
-                ])
-        ];
     }
 
     private static function sidebarForm(): array
