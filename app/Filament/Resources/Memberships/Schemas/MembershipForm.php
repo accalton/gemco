@@ -27,35 +27,35 @@ class MembershipForm
     {
         return $schema
             ->components([
-                Tabs::make('Tabs')
-                    ->columnSpanFull()
-                    ->tabs([
-                        Tab::make('Membership Details')
-                            ->schema([
-                                Flex::make([
-                                    Section::make()
-                                        ->contained(false)
+                Flex::make([
+                    Section::make()
+                        ->schema([
+                            Select::make('type')
+                                ->columnSpanFull()
+                                ->live()
+                                ->options(Membership::TYPES)
+                                ->required(),
+                            Tabs::make('Tabs')
+                                ->columnSpanFull()
+                                ->tabs([
+                                    Tab::make('Member Details')
                                         ->schema([
-                                            Select::make('type')
-                                                ->live()
-                                                ->options(Membership::TYPES)
-                                                ->required(),
+                                            self::memberForm(),
+                                        ]),
+                                    Tab::make('Contact Details')
+                                        ->schema([
+                                            self::contactForm(),
+                                        ]),
+                                    Tab::make('Address Details')
+                                        ->schema([
                                             self::addressForm(),
                                         ]),
-                                    Section::make()
-                                        ->schema(self::sidebarForm())
-                                        ->grow(false)
-                                ])->from('md')->columnSpanFull()
-                            ]),
-                        Tab::make('Member Details')
-                            ->schema([
-                                self::memberForm(),
-                            ]),
-                        Tab::make('Contact Details')
-                            ->schema([
-                                self::contactForm(),
-                            ])
-                    ])
+                                ]),
+                        ]),
+                    Section::make()
+                        ->schema(self::sidebarForm())
+                        ->grow(false),
+                ])->from('md')->columnSpanFull(),
             ]);
     }
 
