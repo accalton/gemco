@@ -18,7 +18,7 @@ class Membership extends Model
 
     public const string STATUS_ACTIVE = 'active';
     public const string STATUS_CANCELLED = 'cancelled';
-    public const string STATUS_EXPIRED = 'expired';
+    public const string STATUS_EXPIRED = 'Expired';
     public const string STATUS_PENDING = 'pending';
     public const string STATUS_REVOKED = 'revoked';
 
