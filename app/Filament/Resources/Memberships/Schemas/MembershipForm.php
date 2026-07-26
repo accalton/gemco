@@ -58,13 +58,18 @@ class MembershipForm
                                                         )
                                                         ->preload()
                                                         ->relationship(
-                                                            modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query
-                                                                ->whereDoesntHave('membership_user', function ($query) {
-                                                                    $query->where('membership_user.type', 'member');
-                                                                })
-                                                                ->orWhere(fn (Builder $query) => $query
-                                                                    ->whereRelation('memberships', 'memberships.id', $get('../../id') ?? null)
-                                                                ),
+                                                            modifyQueryUsing: function (Builder $query, Get $get) {
+                                                                $query->where(function (Builder $query) use ($get) {
+                                                                    $query->where(function (Builder $query) use ($get) {
+                                                                        $query->whereDoesntHave('membership_user', function (Builder $query) {
+                                                                            $query->where('membership_user.type', 'member');
+                                                                        })->whereNotIn('id', self::currentUserIds($get));
+                                                                    })->orWhere(function (Builder $query) use ($get) {
+                                                                        $query->whereRelation('memberships', 'memberships.id', $get('../../id'))
+                                                                            ->whereNotIn('id', self::currentUserIds($get));
+                                                                    });
+                                                                });
+                                                            },
                                                             name: 'user',
                                                             titleAttribute: 'name'
                                                         )
@@ -152,6 +157,16 @@ class MembershipForm
                     ->columnSpan(2)
                     ->options(Address::STATES)
             ]);
+    }
+
+    private static function currentUserIds(Get $get): array
+    {
+        $userIds = [];
+        foreach ($get('../../members') as $member) {
+            $userIds[] = $member['user_id'];
+        }
+
+        return array_filter(array_diff($userIds, [$get('user_id')]));
     }
 
     private static function sidebarForm(): array
