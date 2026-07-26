@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use DateTime;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -71,6 +75,26 @@ class Membership extends Model
     }
 
     /**
+     * @return Attribute
+     */
+    public function isExpired(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $expiry = DateTime::createFromFormat('Y-m-d', $this->expiry);
+
+                if ($expiry) {
+                    $today = new DateTime('midnight');
+
+                    return $expiry <= $today;
+                }
+
+                return false;
+            }
+        );
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function members(): BelongsToMany
@@ -88,5 +112,17 @@ class Membership extends Model
     public function membership_user(): HasMany
     {
         return $this->hasMany(MembershipUser::class);
+    }
+
+    #[Scope]
+    protected function current(Builder $query): void
+    {
+        $query->where('expiry', '>=', date('Y-m-d'));
+    }
+
+    #[Scope]
+    protected function expired(Builder $query): void
+    {
+        $query->where('expiry', '<=', date('Y-m-d'));
     }
 }

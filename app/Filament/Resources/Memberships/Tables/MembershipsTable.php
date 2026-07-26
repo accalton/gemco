@@ -9,6 +9,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportAction;
 use Filament\Tables\Columns;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -18,29 +20,30 @@ class MembershipsTable
     {
         return $table
             ->columns([
-                Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->label('ID')
                     ->sortable(),
-                Columns\TextColumn::make('type')
+                TextColumn::make('type')
                     ->formatStateUsing(fn (string $state): string => Membership::TYPES[$state]),
-                Columns\TextColumn::make('members.name')
+                TextColumn::make('members.name')
                     ->bulleted()
                     ->label('Members')
                     ->searchable(),
-                Columns\TextColumn::make('contacts.name')
+                TextColumn::make('contacts.name')
                     ->bulleted()
                     ->label('Contacts')
                     ->searchable(),
-                Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         Membership::STATUS_ACTIVE    => 'success',
                         Membership::STATUS_CANCELLED => 'danger',
                         Membership::STATUS_EXPIRED   => 'danger',
                         Membership::STATUS_PENDING   => 'warning',
-                        Membership::STATUS_REVOKED   => 'gray'
-                    }),
-                Columns\TextColumn::make('expiry')
+                        Membership::STATUS_REVOKED   => 'gray',
+                    })
+                    ->state(fn (Membership $record) => $record->isExpired ? 'expired' : $record->status),
+                TextColumn::make('expiry')
             ])
             ->defaultSort('id', 'desc')
             ->filters([
