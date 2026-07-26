@@ -27,12 +27,10 @@ class MembershipsTable
                     ->bulleted()
                     ->label('Members')
                     ->searchable(),
-                /*
                 Columns\TextColumn::make('contacts.name')
                     ->bulleted()
                     ->label('Contacts')
                     ->searchable(),
-                */
                 Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
