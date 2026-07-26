@@ -43,7 +43,10 @@ class MembershipForm
                                             Repeater::make('members')
                                                 ->maxItems(fn (Get $get): ?int => $get('type') != 'family' ? 1 : null)
                                                 ->minItems(1)
-                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_MEMBER]))
+                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => array_merge(
+                                                    $data,
+                                                    ['type' => MembershipUser::TYPE_MEMBER]
+                                                ))
                                                 ->relationship(
                                                     modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'member'),
                                                     name: 'membership_user'
@@ -58,8 +61,8 @@ class MembershipForm
                                                         )
                                                         ->preload()
                                                         ->relationship(
-                                                            modifyQueryUsing: function (Builder $query, Get $get) {
-                                                                $query->where(function (Builder $query) use ($get) {
+                                                            modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query
+                                                                ->where(function (Builder $query) use ($get) {
                                                                     $query->where(function (Builder $query) use ($get) {
                                                                         $query->whereDoesntHave('membership_user', function (Builder $query) {
                                                                             $query->where('membership_user.type', 'member');
@@ -68,8 +71,7 @@ class MembershipForm
                                                                         $query->whereRelation('memberships', 'memberships.id', $get('../../id'))
                                                                             ->whereNotIn('id', self::currentUserIds($get));
                                                                     });
-                                                                });
-                                                            },
+                                                                }),
                                                             name: 'user',
                                                             titleAttribute: 'name'
                                                         )
@@ -80,8 +82,12 @@ class MembershipForm
                                     Tab::make('Contact Details')
                                         ->schema([
                                             Repeater::make('contacts')
+                                                ->defaultItems(0)
                                                 ->minItems(fn (Get $get): ?int => $get('type') === 'youth' ? 1 : null)
-                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_CONTACT]))
+                                                ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => array_merge(
+                                                    $data,
+                                                    ['type' => MembershipUser::TYPE_CONTACT]
+                                                ))
                                                 ->relationship(
                                                     modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'contact'),
                                                     name: 'membership_user'
@@ -96,6 +102,11 @@ class MembershipForm
                                                         )
                                                         ->preload()
                                                         ->relationship(
+                                                            modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query->where(
+                                                                function (Builder $query) use ($get) {
+                                                                    $query->whereNotIn('id', self::currentUserIds($get));
+                                                                }
+                                                            ),
                                                             name: 'user',
                                                             titleAttribute: 'name'
                                                         )
