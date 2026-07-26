@@ -14,7 +14,7 @@ class GroupsTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('title')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

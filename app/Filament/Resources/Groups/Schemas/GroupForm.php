@@ -11,7 +11,7 @@ class GroupForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('title')
                     ->required(),
             ]);
     }
