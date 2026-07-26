@@ -43,12 +43,10 @@ class UserForm
                                 ->readOnly(),
                             DatePicker::make('created_at')
                                 ->disabled()
-                                ->readOnly()
-                                ->required(),
+                                ->readOnly(),
                             DatePicker::make('updated_at')
                                 ->disabled()
-                                ->readOnly()
-                                ->required(),
+                                ->readOnly(),
                         ]),
                 ])->from('md')->columnSpanFull()
             ]);

@@ -51,7 +51,7 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: fn (?string $value) => $value ?: $this->email,
-            set: fn (?string $value) => $value !== $this->email ?: ''
+            set: fn (?string $value) => $value !== $this->email ? $value : ''
         );
     }
 
