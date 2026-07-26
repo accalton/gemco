@@ -74,7 +74,7 @@ class User extends Authenticatable
     /**
      * @return BelongsToMany
      */
-    public function membership(): BelongsToMany
+    public function memberships(): BelongsToMany
     {
         return $this->belongsToMany(Membership::class)->withPivot('relationship', 'type');
     }

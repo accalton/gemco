@@ -41,7 +41,7 @@ class MembershipForm
                                     Tab::make('Member Details')
                                         ->schema([
                                             Repeater::make('members')
-                                                ->maxItems(fn (Get $get) => $get('type') != 'family' ? 1 : null)
+                                                ->maxItems(fn (Get $get): ?int => $get('type') != 'family' ? 1 : null)
                                                 ->minItems(1)
                                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_MEMBER]))
                                                 ->relationship(
@@ -58,11 +58,13 @@ class MembershipForm
                                                         )
                                                         ->preload()
                                                         ->relationship(
-                                                            modifyQueryUsing: fn (Builder $query, ?MembershipUser $record): Builder => $query
+                                                            modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query
                                                                 ->whereDoesntHave('membership_user', function ($query) {
                                                                     $query->where('membership_user.type', 'member');
                                                                 })
-                                                                ->orWhereRelation('membership_user', 'id', $record->id ?? null),
+                                                                ->orWhere(fn (Builder $query) => $query
+                                                                    ->whereRelation('memberships', 'memberships.id', $get('../../id') ?? null)
+                                                                ),
                                                             name: 'user',
                                                             titleAttribute: 'name'
                                                         )
@@ -73,6 +75,7 @@ class MembershipForm
                                     Tab::make('Contact Details')
                                         ->schema([
                                             Repeater::make('contacts')
+                                                ->minItems(fn (Get $get): ?int => $get('type') === 'youth' ? 1 : null)
                                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => array_merge($data, ['type' => MembershipUser::TYPE_CONTACT]))
                                                 ->relationship(
                                                     modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', 'contact'),
