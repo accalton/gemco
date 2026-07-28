@@ -28,12 +28,37 @@ class MembershipsTable
                     ->formatStateUsing(fn (string $state): string => Membership::TYPES[$state]),
                 TextColumn::make('members.name')
                     ->bulleted()
-                    ->label('Members')
                     ->searchable(),
-                TextColumn::make('contacts.name')
+                TextColumn::make('members.contact_email')
                     ->bulleted()
-                    ->label('Contacts')
-                    ->searchable(),
+                    ->label('Member Email Addresses')
+                    ->state(function (Membership $record) {
+                        if ($record->isExpired) {
+                            return null;
+                        }
+
+                        $emails = [];
+                        foreach ($record->members as $member) {
+                            $emails[] = $member->contact_email;
+                        }
+
+                        return $emails;
+                    }),
+                TextColumn::make('members.phone')
+                    ->bulleted()
+                    ->label('Member Phone Numbers')
+                    ->state(function (Membership $record) {
+                        if ($record->isExpired) {
+                            return null;
+                        }
+
+                        $phoneNumbers = [];
+                        foreach ($record->members as $member) {
+                            $phoneNumbers[] = $member->phone;
+                        }
+
+                        return $phoneNumbers;
+                    }),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -52,6 +77,8 @@ class MembershipsTable
                     ->label('Expired')
                     ->state(fn (Membership $record) => $record->isExpired ? 'Expired' : 'Current'),
                 TextColumn::make('expiry')
+                    ->date('jS F, Y')
+                    ->sortable(),
             ])
             ->defaultSort('id', 'desc')
             ->filters([

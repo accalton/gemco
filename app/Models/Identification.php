@@ -27,7 +27,6 @@ class Identification extends Model
     protected $fillable = [
         'details',
         'expiry',
-        'issued',
         'member_id',
         'number',
         'type',

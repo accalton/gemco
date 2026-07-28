@@ -19,15 +19,14 @@ class IdentificationFactory extends Factory
     public function definition(): array
     {
         $issued = new DateTime();
-        $issued->modify('-' . rand(100, 500) . ' days');
+        $issued->modify('-' . rand(0, 550) . ' days');
 
         $expiry = clone $issued;
-        $expiry->modify('+2 years');
+        $expiry->modify('+1 year');
 
         return [
             'type' => array_rand(Identification::TYPES),
             'number' => fake()->randomNumber(8, true),
-            'issued' => $issued->format('Y-m-d'),
             'expiry' => $expiry->format('Y-m-d'),
         ];
     }

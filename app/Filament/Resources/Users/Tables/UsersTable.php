@@ -19,6 +19,8 @@ class UsersTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('date_of_birth')
+                    ->date('jS F, Y'),
                 TextColumn::make('contact_email')
                     ->searchable()
                     ->sortable(),

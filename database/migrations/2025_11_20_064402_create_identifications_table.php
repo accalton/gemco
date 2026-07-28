@@ -19,7 +19,7 @@ return new class extends Migration
                 ->cascadeOnUpdate();
             $table->string('type');
             $table->string('number')->nullable();
-            $table->string('expiry')->nullable();
+            $table->date('expiry')->nullable();
             $table->string('upload')->nullable();
             $table->string('details', 2000)->nullable();
             $table->timestamps();

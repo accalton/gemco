@@ -20,10 +20,18 @@ class MembershipExporter extends Exporter
             ExportColumn::make('type'),
             ExportColumn::make('status'),
             ExportColumn::make('expiry'),
-            ExportColumn::make('cancellation_reason'),
             ExportColumn::make('address.full_address'),
-            ExportColumn::make('member.name'),
             ExportColumn::make('members.name')
+                ->label('Members')
+                ->listAsJson(),
+            ExportColumn::make('members.date_of_birth')
+                ->label('Date of Birth')
+                ->listAsJson(),
+            ExportColumn::make('members.contact_email')
+                ->label('Email Address')
+                ->listAsJson(),
+            ExportColumn::make('members.phone')
+                ->label('Phone Number')
                 ->listAsJson(),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),

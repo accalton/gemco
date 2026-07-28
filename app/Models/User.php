@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -45,6 +46,14 @@ class User extends Authenticatable
     ];
 
     /**
+     * @return HasOne
+     */
+    public function address(): HasOne
+    {
+        return $this->hasOne(Address::class);
+    }
+
+    /**
      * @return Attribute
      */
     public function contactEmail(): Attribute
@@ -61,6 +70,22 @@ class User extends Authenticatable
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function guardian_minor(): HasMany
+    {
+        return $this->hasMany(GuardianMinor::class, 'guardian_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function guardians(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'guardian_minor', 'guardian_id', 'minor_id');
     }
 
     /**
@@ -85,6 +110,22 @@ class User extends Authenticatable
     public function membership_user(): HasMany
     {
         return $this->hasMany(MembershipUser::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function minor_guardian(): HasMany
+    {
+        return $this->hasMany(GuardianMinor::class, 'minor_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function minors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'guardian_minor', 'minor_id', 'guardian_id');
     }
 
     /**

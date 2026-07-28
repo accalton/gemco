@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Memberships\Schemas;
 
 use App\Filament\Resources\Users\Schemas\UserForm;
-use App\Models\Address;
 use App\Models\Membership;
 use App\Models\MembershipUser;
 use Filament\Forms\Components\DatePicker;
@@ -54,10 +53,10 @@ class MembershipForm
                                                 ->simple(
                                                     Select::make('user_id')
                                                         ->createOptionForm(
-                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                            [UserForm::userForm()]
                                                         )
                                                         ->editOptionForm(
-                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                            [UserForm::userForm()]
                                                         )
                                                         ->preload()
                                                         ->relationship(
@@ -95,10 +94,10 @@ class MembershipForm
                                                 ->simple(
                                                     Select::make('user_id')
                                                         ->createOptionForm(
-                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                            [UserForm::userForm()]
                                                         )
                                                         ->editOptionForm(
-                                                            array_merge(UserForm::detailsForm(), UserForm::identificationForm())
+                                                            [UserForm::userForm()]
                                                         )
                                                         ->preload()
                                                         ->relationship(
@@ -114,59 +113,12 @@ class MembershipForm
                                                         ->searchable()
                                                 )
                                         ]),
-                                    Tab::make('Address Details')
-                                        ->schema([
-                                            self::addressForm(),
-                                        ]),
                                 ]),
                         ]),
                     Section::make()
                         ->schema(self::sidebarForm())
                         ->grow(false),
                 ])->from('md')->columnSpanFull(),
-            ]);
-    }
-
-    private static function addressForm(): Fieldset
-    {
-        return Fieldset::make('Address')
-            ->columns(6)
-            ->contained(true)
-            ->relationship(
-                'address',
-                condition: function (?array $state): bool {
-                    foreach ([
-                        'line1',
-                        'line2',
-                        'suburb',
-                        'postcode',
-                        'state'
-                    ] as $field) {
-                        if (filled($state[$field])) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }
-            )
-            ->schema([
-                TextInput::make('line1')
-                    ->columnSpan(3)
-                    ->label('Address Line 1'),
-                TextInput::make('line2')
-                    ->columnSpan(3)
-                    ->label('Address Line 2'),
-                TextInput::make('suburb')
-                    ->columnSpan(2)
-                    ->required(),
-                TextInput::make('postcode')
-                    ->columnSpan(2)
-                    ->length(4)
-                    ->required(),
-                Select::make('state')
-                    ->columnSpan(2)
-                    ->options(Address::STATES)
             ]);
     }
 

@@ -2,17 +2,21 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\Address;
 use App\Models\Identification;
+use DateTime;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -22,18 +26,7 @@ class UserForm
         return $schema
             ->components([
                 Flex::make([
-                    Tabs::make()
-                        ->columnSpanFull()
-                        ->tabs([
-                            Tab::make('User Details')
-                                ->schema(
-                                    self::detailsForm(),
-                                ),
-                            Tab::make('Identifications')
-                                ->schema(
-                                    self::identificationForm()
-                                )
-                        ]),
+                    self::userForm(),
                     Section::make()
                         ->grow(false)
                         ->schema([
@@ -52,17 +45,80 @@ class UserForm
             ]);
     }
 
-    public static function detailsForm(): array
+    public static function userForm(): Tabs
+    {
+        return Tabs::make()
+            ->columnSpanFull()
+            ->tabs([
+                Tab::make('User Details')
+                    ->schema(
+                        self::detailsForm(),
+                    ),
+                Tab::make('Address')
+                    ->schema(
+                        self::addressFOrm()
+                    ),
+                Tab::make('Identifications')
+                    ->schema(
+                        self::identificationForm()
+                    )
+            ]);
+    }
+
+    private static function addressForm(): array
+    {
+        return [
+            Fieldset::make()
+                ->columns(3)
+                ->contained(false)
+                ->relationship(name: 'address')
+                ->schema([
+                    TextInput::make('line1')
+                        ->columnSpanFull()
+                        ->label('Address Line 1'),
+                    TextInput::make('line2')
+                        ->columnSpanFull()
+                        ->label('Address Line 2'),
+                    TextInput::make('suburb')
+                        ->columnSpan(1)
+                        ->required(),
+                    TextInput::make('postcode')
+                        ->columnSpan(1)
+                        ->length(4)
+                        ->required(),
+                    Select::make('state')
+                        ->columnSpan(1)
+                        ->options(Address::STATES)
+                ])
+        ];
+    }
+
+    private static function detailsForm(): array
     {
         return [
             TextInput::make('name')
                 ->required(),
             DatePicker::make('date_of_birth')
+                ->live()
                 ->required(),
+            Repeater::make('Guardians')
+                ->defaultItems(1)
+                ->hidden(fn (Get $get): bool => !self::isMinor($get))
+                ->minItems(1)
+                ->relationship('minor_guardian')
+                ->simple(
+                    Select::make('guardian_id')
+                        ->preload()
+                        ->relationship(name: 'guardian', titleAttribute: 'name')
+                        ->required()
+                        ->searchable()
+                ),
             TextInput::make('contact_email')
                 ->email()
+                ->hidden(fn (Get $get): bool => self::isMinor($get))
                 ->required(),
             TextInput::make('phone')
+                ->hidden(fn (Get $get): bool => self::isMinor($get))
                 ->required()
                 ->tel(),
             Select::make('groups')
@@ -72,7 +128,7 @@ class UserForm
         ];
     }
 
-    public static function identificationForm(): array
+    private static function identificationForm(): array
     {
         return [
             Repeater::make('identifications')
@@ -102,5 +158,17 @@ class UserForm
                         ->live()
                 ])
         ];
+    }
+
+    private static function isMinor(Get $get): bool
+    {
+        if ($dateOfBirth = DateTime::createFromFormat('Y-m-d', $get('date_of_birth'))) {
+            $today = new DateTime();
+            $dateOfBirth->modify('+18 years');
+
+            return $dateOfBirth >= $today;
+        }
+
+        return false;
     }
 }
