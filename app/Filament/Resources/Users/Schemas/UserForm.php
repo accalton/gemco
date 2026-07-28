@@ -104,6 +104,7 @@ class UserForm
             Repeater::make('Guardians')
                 ->defaultItems(1)
                 ->hidden(fn (Get $get): bool => !self::isMinor($get))
+                ->label(fn (array $state): string => count($state) > 1 ? 'Guardians' : 'Guardian')
                 ->minItems(1)
                 ->relationship('minor_guardian')
                 ->simple(

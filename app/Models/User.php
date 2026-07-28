@@ -85,7 +85,7 @@ class User extends Authenticatable
      */
     public function guardians(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'guardian_minor', 'guardian_id', 'minor_id');
+        return $this->belongsToMany(User::class, 'guardian_minor', 'minor_id', 'guardian_id');
     }
 
     /**
@@ -125,7 +125,7 @@ class User extends Authenticatable
      */
     public function minors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'guardian_minor', 'minor_id', 'guardian_id');
+        return $this->belongsToMany(User::class, 'guardian_minor', 'guardian_id', 'minor_id');
     }
 
     /**

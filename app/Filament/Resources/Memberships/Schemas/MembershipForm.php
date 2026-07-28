@@ -40,6 +40,7 @@ class MembershipForm
                                     Tab::make('Member Details')
                                         ->schema([
                                             Repeater::make('members')
+                                                ->label(fn (array $state): string => count($state) > 1 ? 'Members' : 'Member')
                                                 ->maxItems(fn (Get $get): ?int => $get('type') != 'family' ? 1 : null)
                                                 ->minItems(1)
                                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => array_merge(
