@@ -75,13 +75,16 @@ class UserForm
                 ->schema([
                     TextInput::make('line1')
                         ->columnSpanFull()
-                        ->label('Address Line 1'),
+                        ->label('Address Line 1')
+                        ->maxLength(255),
                     TextInput::make('line2')
                         ->columnSpanFull()
-                        ->label('Address Line 2'),
+                        ->label('Address Line 2')
+                        ->maxLength(255),
                     TextInput::make('suburb')
                         ->columnSpan(1)
-                        ->required(),
+                        ->required()
+                        ->maxLength(255),
                     TextInput::make('postcode')
                         ->columnSpan(1)
                         ->length(4)
@@ -97,6 +100,7 @@ class UserForm
     {
         return [
             TextInput::make('name')
+                ->maxLength(255)
                 ->required(),
             DatePicker::make('date_of_birth')
                 ->live()
@@ -117,9 +121,11 @@ class UserForm
             TextInput::make('contact_email')
                 ->email()
                 ->hidden(fn (Get $get): bool => self::isMinor($get))
+                ->maxLength(255)
                 ->required(),
             TextInput::make('phone')
                 ->hidden(fn (Get $get): bool => self::isMinor($get))
+                ->maxLength(20)
                 ->required()
                 ->tel(),
             Select::make('groups')
@@ -149,6 +155,7 @@ class UserForm
                         ->required(),
                     TextInput::make('number')
                         ->columnSpanFull()
+                        ->maxLength(255)
                         ->required(),
                     Textarea::make('details')
                         ->columnSpanFull()

@@ -12,6 +12,7 @@ class GroupForm
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->maxLength(255)
                     ->required(),
             ]);
     }

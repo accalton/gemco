@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('line1')->nullable();
             $table->string('line2')->nullable();
             $table->string('suburb')->nullable();
-            $table->string('state')->nullable();
-            $table->string('postcode')->nullable();
+            $table->string('state', 4)->nullable();
+            $table->string('postcode', 8)->nullable();
             $table->string('full_address')->virtualAs('CONCAT_WS(", ", line1, line2, suburb, state, postcode)');
             $table->timestamps();
         });
