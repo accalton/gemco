@@ -65,6 +65,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany
+     */
+    public function group_user(): HasMany
+    {
+        return $this->hasMany(GroupUser::class);
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function groups(): BelongsToMany

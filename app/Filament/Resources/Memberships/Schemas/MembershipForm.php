@@ -11,7 +11,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -41,7 +40,7 @@ class MembershipForm
                                         ->schema([
                                             Repeater::make('members')
                                                 ->label(fn (array $state): string => count($state) > 1 ? 'Members' : 'Member')
-                                                ->maxItems(fn (Get $get): ?int => $get('type') != 'family' ? 1 : null)
+                                                ->maxItems(fn (Get $get): ?int => $get('type') != 'family' ? 1 : 5)
                                                 ->minItems(1)
                                                 ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => array_merge(
                                                     $data,
